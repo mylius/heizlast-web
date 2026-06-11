@@ -128,3 +128,62 @@
     @apply font-sans;
     }
 }
+/* --- Bericht (Anzeige + Druck) --- */
+.report-h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.375rem;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+}
+
+.report-table th,
+.report-table td {
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.4rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.report-table th {
+    background: var(--muted);
+    font-weight: 600;
+}
+
+.report-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+
+    body {
+        background: white;
+    }
+
+    .print-page-break {
+        break-before: page;
+    }
+
+    .report-table th,
+    .report-table td {
+        border-color: #999;
+    }
+
+    .report-table {
+        font-size: 9px;
+    }
+
+    .report-table thead {
+        display: table-header-group;
+    }
+}
