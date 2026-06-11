@@ -39,6 +39,46 @@ describe("JSON-Schema Round-Trip", () => {
     )
   })
 
+  it("Raum mit eigener Höhe + Geschoss-Injektion wird materialisiert", async () => {
+    const { makeRoom, makeStorey } = await import("@/engine/types")
+    const project = {
+      projectId: "T",
+      description: "Test",
+      address: "",
+      storeys: { EG: makeStorey({ id: "EG", storeyHeightM: 2.6 }) },
+      usageUnits: [
+        {
+          number: 1,
+          name: "WE1",
+          rooms: [
+            makeRoom({
+              id: "EG-R1",
+              name: "Wohnraum",
+              floor: "EG",
+              roomWidthM: 4,
+              roomLengthM: 5,
+              roomType: "Wohnraum" as const,
+              storeyId: "EG",
+              // eigene Höhe → Python-Parser würde Geschoss lösen
+              storeyHeightM: 3.0,
+            }),
+          ],
+        },
+      ],
+    }
+    const params = defaultParams()
+    const wire = serializeProjectJson(project, params.thetaEC)
+    const reloaded = parseProjectJson(JSON.parse(JSON.stringify(wire)))
+    expect(normalize(dumpResults(reloaded, params))).toEqual(
+      normalize(dumpResults(project, params)),
+    )
+    // DE/FB müssen als explizite Bauteile in der Datei stehen
+    const roomWire = wire.usage_units![0].rooms![0]
+    expect(
+      roomWire.components!.map((c) => c.component_type).sort(),
+    ).toEqual(["DE", "FB"])
+  })
+
   it("ungültige Daten werfen einen Fehler", () => {
     expect(() => parseProjectJson({ usage_units: [{ number: "x" }] })).toThrow()
     expect(() => parseProjectJson(null)).toThrow()

@@ -325,7 +325,10 @@ export function serializeProjectJson(
       serializeRoom(
         r,
         project,
-        r.storeyId !== null && materializeStoreyIds.has(r.storeyId),
+        // Materialisieren auch bei eigener Geschosshöhe: der Python-Parser
+        // löst solche Räume vom Geschoss und würde DE/FB-Injektion verlieren
+        r.storeyId !== null &&
+          (materializeStoreyIds.has(r.storeyId) || r.storeyHeightM !== null),
       ),
     ),
   }))

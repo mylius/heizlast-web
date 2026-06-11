@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom"
 
 import { AppHeader } from "@/components/layout/AppHeader"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { ProfiPage } from "@/pages/profi/ProfiPage"
 import { ReportPage } from "@/pages/ReportPage"
 import { StartPage } from "@/pages/StartPage"
@@ -26,7 +27,9 @@ function Shell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Shell />
+      <TooltipProvider delayDuration={300}>
+        <Shell />
+      </TooltipProvider>
       <Toaster position="top-right" richColors />
     </BrowserRouter>
   )
