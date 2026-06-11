@@ -18,11 +18,7 @@
 import * as z from "zod"
 
 import { parseRoomType } from "./defaults"
-import {
-  aFloorM2,
-  effectiveComponents,
-  storeyForRoom,
-} from "./derive"
+import { effectiveComponents, storeyForRoom } from "./derive"
 import {
   COMPONENT_TYPES,
   DEFAULT_THETA_E_C,
