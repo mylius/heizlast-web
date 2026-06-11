@@ -1,0 +1,162 @@
+{
+  "theta_e_c": -10.3,
+  "units": [
+    {
+      "number": 5,
+      "name": "Wohneinheit 1",
+      "phi_t_w": 2105.0,
+      "phi_v_w": 747.0,
+      "phi_hl_w": 2852.0,
+      "rooms": [
+        {
+          "id": "EG-R1",
+          "name": "Wohnraum",
+          "floor": "EG",
+          "a_floor_m2": 26.75,
+          "h_i_m": 3.56,
+          "v_i_m3": 95.23,
+          "effective_theta_i_c": 20.0,
+          "theta_design_c": 20.0,
+          "effective_n_min_h1": 0.5,
+          "q_v_min_m3h": 72.53,
+          "phi_t_stand_w": 2105.0,
+          "phi_v_stand_w": 747.0,
+          "phi_hl_w": 2852.0,
+          "components": [
+            {
+              "orientation": "H",
+              "component_type": "DE",
+              "label": "",
+              "effective_brutto_m2": 15.4,
+              "effective_abzug_m2": 0.0,
+              "a_k_m2": 15.4,
+              "f_ix": 0.0,
+              "u_corrected": 0.97,
+              "theta_adjacent_c": 20.0,
+              "adjacent": "ij",
+              "phi_t_k_w": 0.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "N",
+              "component_type": "AW",
+              "label": "",
+              "effective_brutto_m2": 16.4,
+              "effective_abzug_m2": 0.0,
+              "a_k_m2": 16.4,
+              "f_ix": 0.3,
+              "u_corrected": 1.3,
+              "theta_adjacent_c": -10.9,
+              "adjacent": "ij",
+              "phi_t_k_w": 198.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "W",
+              "component_type": "AW",
+              "label": "",
+              "effective_brutto_m2": 27.3,
+              "effective_abzug_m2": 3.4,
+              "a_k_m2": 23.9,
+              "f_ix": 1.0,
+              "u_corrected": 1.4,
+              "theta_adjacent_c": -10.3,
+              "adjacent": "e",
+              "phi_t_k_w": 1014.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "W",
+              "component_type": "AF",
+              "label": "",
+              "effective_brutto_m2": 1.7,
+              "effective_abzug_m2": 0.0,
+              "a_k_m2": 1.7,
+              "f_ix": 1.0,
+              "u_corrected": 1.05,
+              "theta_adjacent_c": -10.3,
+              "adjacent": "e",
+              "phi_t_k_w": 54.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "S",
+              "component_type": "AW",
+              "label": "",
+              "effective_brutto_m2": 16.4,
+              "effective_abzug_m2": 1.6,
+              "a_k_m2": 14.8,
+              "f_ix": 1.0,
+              "u_corrected": 1.4,
+              "theta_adjacent_c": -10.3,
+              "adjacent": "e",
+              "phi_t_k_w": 628.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "O",
+              "component_type": "IW",
+              "label": "",
+              "effective_brutto_m2": 13.3,
+              "effective_abzug_m2": 1.6,
+              "a_k_m2": 11.7,
+              "f_ix": 0.0,
+              "u_corrected": 3.19,
+              "theta_adjacent_c": 20.0,
+              "adjacent": "ij",
+              "phi_t_k_w": 0.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "O",
+              "component_type": "IT",
+              "label": "",
+              "effective_brutto_m2": 1.6,
+              "effective_abzug_m2": 0.0,
+              "a_k_m2": 1.6,
+              "f_ix": 0.0,
+              "u_corrected": 1.3,
+              "theta_adjacent_c": 20.0,
+              "adjacent": "ij",
+              "phi_t_k_w": 0.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "O",
+              "component_type": "IW",
+              "label": "",
+              "effective_brutto_m2": 14.0,
+              "effective_abzug_m2": 1.9,
+              "a_k_m2": 12.1,
+              "f_ix": 0.17,
+              "u_corrected": 3.19,
+              "theta_adjacent_c": 15.0,
+              "adjacent": "ij",
+              "phi_t_k_w": 33.0,
+              "is_opening": false
+            },
+            {
+              "orientation": "H",
+              "component_type": "FB",
+              "label": "",
+              "effective_brutto_m2": 31.8,
+              "effective_abzug_m2": 0.0,
+              "a_k_m2": 31.8,
+              "f_ix": 0.33,
+              "u_corrected": 1.7,
+              "theta_adjacent_c": 10.0,
+              "adjacent": "e",
+              "phi_t_k_w": 178.0,
+              "is_opening": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "building": {
+    "phi_t_w": 2105.0,
+    "phi_v_w": 747.0,
+    "phi_hl_w": 2852.0
+  }
+}
