@@ -15,9 +15,10 @@ export interface WizardStoreyInput {
   id: string
   label: string
   /**
-   * Raumhöhe; bei Geschossen mit Dachschrägen die MITTLERE Höhe
-   * ((Kniestock + First) / 2) — damit sind Giebelwände (Trapeze) und das
-   * Raumvolumen automatisch flächenrichtig.
+   * LICHTE Raumhöhe (Boden–Decke, innen gemessen); bei Geschossen mit
+   * Dachschrägen die MITTLERE Höhe ((Kniestock + First) / 2) — damit sind
+   * Giebelwände (Trapeze) und das Raumvolumen automatisch flächenrichtig.
+   * Das Mapping addiert 0,20 m Deckendicke zur Geschosshöhe.
    */
   heightM: number
   below: BelowSituation

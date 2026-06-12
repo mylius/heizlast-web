@@ -123,7 +123,10 @@ function buildStorey(
 
   return makeStorey({
     id: input.id,
-    storeyHeightM: input.heightM,
+    // Eingabe ist die LICHTE Raumhöhe (Boden–Decke, innen gemessen):
+    // Geschosshöhe = lichte Höhe + Deckendicke. Volumen rechnet dann exakt
+    // mit dem Messwert, Wandflächen mit der Geschosshöhe (≈ Außenmaß).
+    storeyHeightM: input.heightM + 0.2,
     ceilingThicknessM: 0.2,
     fbThetaAdjacentC: fb.theta,
     fbUValue: fb.u,

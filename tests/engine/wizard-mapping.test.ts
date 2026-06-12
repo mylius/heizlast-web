@@ -46,17 +46,18 @@ describe("buildProjectFromWizard", () => {
     })
 
     const room = results.unitResults[0].roomResults[0]
-    // AW: brutto 5×2,6 = 13, Abzug 1,5 → A 11,5; U_korr 1,4+0,1 = 1,5;
-    //     Φ = 11,5·1,5·1·32 = 552
+    // Eingabe 2,6 m ist die LICHTE Höhe → Geschosshöhe 2,8 m für Wände
+    // AW: brutto 5×2,8 = 14, Abzug 1,5 → A 12,5; U_korr 1,4+0,1 = 1,5;
+    //     Φ = 12,5·1,5·1·32 = 600
     // AF: U_korr 2,8+0,1 = 2,9 → 1,5·2,9·32 = 139,2 → 139
     // DE (unbeheizter Dachboden, b = 0,9): θ_eff = 20 − 0,9·32 = −8,8;
     //     Φ = 20·1,4·28,8 = 806,4 → 806
     // FB (unbeheizter Keller, b = 0,5): θ_eff = 20 − 0,5·32 = 4;
     //     Φ = 20·1,6·16 = 512
-    expect(room.phiTStandW).toBe(552 + 139 + 806 + 512)
-    // V = 20·2,4 = 48 → q_V = 24 → Φ_V = 24·0,34·32 = 261,12 → 261
-    expect(room.phiVStandW).toBe(261)
-    expect(room.phiHlW).toBe(2270)
+    expect(room.phiTStandW).toBe(600 + 139 + 806 + 512)
+    // V = 20·2,6 (lichte Höhe) = 52 → q_V = 26 → Φ_V = 26·0,34·32 = 282,88 → 283
+    expect(room.phiVStandW).toBe(283)
+    expect(room.phiHlW).toBe(2340)
     // Bauteilzeilen: AW, AF (Öffnung), DE und FB aus dem Geschoss
     expect(
       room.componentResults.map((c) => c.component.componentType),
