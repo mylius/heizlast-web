@@ -9,7 +9,7 @@ import type { Orientation, RoomType } from "@/engine/types"
 export type BuildingKind = "efh" | "dhh" | "wohnung"
 
 export type BelowSituation = "keller-unbeheizt" | "erdreich" | "beheizt" | "aussenluft"
-export type AboveSituation = "beheizt" | "dach-unbeheizt" | "aussenluft" | "flachdach"
+export type AboveSituation = "beheizt" | "dach-unbeheizt" | "flachdach" | "dachschraegen"
 
 export interface WizardStoreyInput {
   id: string
