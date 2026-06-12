@@ -12,6 +12,7 @@ import {
   LayoutList,
   Plus,
   Trash2,
+  TriangleAlert,
 } from "lucide-react"
 
 import { LoadBars } from "@/components/results/LoadBars"
@@ -29,6 +30,7 @@ import { Separator } from "@/components/ui/separator"
 import { deKw, deWatt } from "@/lib/format"
 import { openProjectFile, saveProjectFile } from "@/lib/projectFile"
 import { cn } from "@/lib/utils"
+import { validateProject } from "@/engine/validate"
 import { useProjectStore } from "@/store/projectStore"
 import { useProjectResults } from "@/store/selectors"
 
@@ -46,6 +48,11 @@ export function ProfiPage() {
   const results = useProjectResults()
   const navigate = useNavigate()
   const [selection, setSelection] = useState<Selection>({ kind: "overview" })
+  const validations = validateProject(project, results)
+  const warningsAt = (unitIndex: number, roomIndex: number) =>
+    validations.find(
+      (v) => v.unitIndex === unitIndex && v.roomIndex === roomIndex,
+    )
 
   // Auswahl absichern, falls Räume/Einheiten gelöscht wurden
   const validSelection: Selection =
@@ -145,6 +152,12 @@ export function ProfiPage() {
                 <span className="truncate">
                   {room.id} {room.name}
                 </span>
+                {warningsAt(unitIndex, roomIndex) && (
+                  <TriangleAlert
+                    className="size-3.5 shrink-0 text-amber-500"
+                    aria-label="Hinweise vorhanden"
+                  />
+                )}
                 <span className="ml-auto text-xs text-muted-foreground tabular-nums">
                   {deWatt(
                     results.unitResults[unitIndex]?.roomResults[roomIndex]

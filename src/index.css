@@ -187,3 +187,20 @@
         display: table-header-group;
     }
 }
+
+@media print {
+    /* Seitenzahlen über @page-Randboxen (Chromium 131+; sonst stillschweigend ohne) */
+    @page {
+        @bottom-right {
+            content: "Seite " counter(page) " von " counter(pages);
+            font-size: 8px;
+            color: #777;
+        }
+
+        @bottom-left {
+            content: "Heizlastberechnung DIN EN 12831";
+            font-size: 8px;
+            color: #777;
+        }
+    }
+}

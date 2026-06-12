@@ -3,7 +3,7 @@
  * (Raumart → θ_i, n_min), abgeleitete Größen, Bauteil-Tabelle und
  * Live-Ergebnis.
  */
-import { Trash2 } from "lucide-react"
+import { Copy, Trash2 } from "lucide-react"
 
 import { NumberField } from "@/components/inputs/NumberField"
 import { RoomResultCard } from "@/components/results/RoomResultCard"
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { computeRoomHeatingLoad } from "@/engine/calc"
+import { validateRoom } from "@/engine/validate"
 import {
   aFloorM2,
   effectiveCeilingThicknessM,
@@ -49,6 +50,7 @@ export function RoomEditor({ path }: { path: RoomPath }) {
 
   const storey = storeyForRoom(room, project)
   const result = computeRoomHeatingLoad(room, params, storey)
+  const warnings = validateRoom(room, storey, result)
   const update = (patch: Partial<Room>) => store.updateRoom(path, patch)
 
   return (
@@ -67,15 +69,34 @@ export function RoomEditor({ path }: { path: RoomPath }) {
             </Badge>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive"
-          onClick={() => store.removeRoom(path)}
-        >
-          <Trash2 /> Raum löschen
-        </Button>
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => store.duplicateRoom(path)}
+          >
+            <Copy /> Duplizieren
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            onClick={() => store.removeRoom(path)}
+          >
+            <Trash2 /> Raum löschen
+          </Button>
+        </div>
       </div>
+
+      {warnings.length > 0 && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+          <ul className="list-inside list-disc space-y-0.5">
+            {warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4 lg:grid-cols-6">
         <Field label="Raum-Nr.">

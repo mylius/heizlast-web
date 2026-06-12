@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card"
 import { computeProject } from "@/engine/calc"
 import { aFloorM2 } from "@/engine/derive"
+import { validateProject } from "@/engine/validate"
 import type { CalculationParams } from "@/engine/types"
 import { de, deKw } from "@/lib/format"
 import { saveProjectFile } from "@/lib/projectFile"
@@ -44,6 +45,7 @@ export function ErgebnisStep() {
     .flatMap((u) => u.rooms)
     .reduce((s, r) => s + aFloorM2(r), 0)
   const specific = totalArea > 0 ? results.totalPhiHlW / totalArea : 0
+  const validations = validateProject(project, results)
 
   const applyToStore = () => {
     setProject(project)
@@ -74,6 +76,24 @@ export function ErgebnisStep() {
           Heizungsauslegung sollte ein Fachbetrieb die Berechnung prüfen.
         </p>
       </div>
+
+      {validations.length > 0 && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+          <p className="mb-1 font-semibold">Hinweise zur Plausibilität</p>
+          <ul className="list-inside list-disc space-y-0.5">
+            {validations.flatMap((v) =>
+              v.warnings.map((w, i) => (
+                <li key={`${v.roomId}-${i}`}>
+                  <strong>
+                    {v.roomId} {v.roomName}:
+                  </strong>{" "}
+                  {w}
+                </li>
+              )),
+            )}
+          </ul>
+        </div>
+      )}
 
       <Card>
         <CardHeader>

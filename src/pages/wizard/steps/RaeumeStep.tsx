@@ -2,7 +2,7 @@
  * Schritt 4: Räume je Geschoss — Grundmaße, Außenwände mit Fensterflächen,
  * optional Dachschräge, Haustür und Haustrennwand (DHH).
  */
-import { Plus, Trash2 } from "lucide-react"
+import { Copy, Plus, Trash2 } from "lucide-react"
 
 import { NumberField } from "@/components/inputs/NumberField"
 import { Badge } from "@/components/ui/badge"
@@ -73,6 +73,20 @@ export function RaeumeStep() {
     setWizard({ rooms: wizard.rooms.filter((r) => r.key !== key) })
   }
 
+  const duplicateRoom = (key: string) => {
+    const index = wizard.rooms.findIndex((r) => r.key === key)
+    if (index < 0) return
+    const original = wizard.rooms[index]
+    const copy: WizardRoomInput = {
+      ...JSON.parse(JSON.stringify(original)),
+      key: nextRoomKey(),
+      name: `${original.name} (Kopie)`,
+    }
+    const rooms = [...wizard.rooms]
+    rooms.splice(index + 1, 0, copy)
+    setWizard({ rooms })
+  }
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
@@ -113,6 +127,7 @@ export function RaeumeStep() {
                 isDachgeschoss={storey.above === "dachschraegen"}
                 onUpdate={(patch) => updateRoom(room.key, patch)}
                 onRemove={() => removeRoom(room.key)}
+                onDuplicate={() => duplicateRoom(room.key)}
               />
             ))}
             <div className="flex flex-wrap gap-1.5">
@@ -140,12 +155,14 @@ function RoomCard({
   isDachgeschoss,
   onUpdate,
   onRemove,
+  onDuplicate,
 }: {
   room: WizardRoomInput
   isDhh: boolean
   isDachgeschoss: boolean
   onUpdate: (patch: Partial<WizardRoomInput>) => void
   onRemove: () => void
+  onDuplicate: () => void
 }) {
   const updateWall = (index: number, patch: Partial<WizardWallInput>) => {
     onUpdate({
@@ -203,15 +220,27 @@ function RoomCard({
         <Badge variant="outline" className="mb-1.5">
           θᵢ {de(defaultThetaIForRoomType(room.roomType), 0)} °C
         </Badge>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="mb-0.5 ml-auto size-7 text-destructive"
-          aria-label="Raum entfernen"
-          onClick={onRemove}
-        >
-          <Trash2 />
-        </Button>
+        <div className="mb-0.5 ml-auto flex gap-0.5">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            aria-label="Raum duplizieren"
+            title="Raum duplizieren"
+            onClick={onDuplicate}
+          >
+            <Copy />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7 text-destructive"
+            aria-label="Raum entfernen"
+            onClick={onRemove}
+          >
+            <Trash2 />
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-1.5">

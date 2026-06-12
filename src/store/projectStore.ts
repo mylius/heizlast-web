@@ -5,6 +5,7 @@
 import { create } from "zustand"
 import { immer } from "zustand/middleware/immer"
 import { persist } from "zustand/middleware"
+import { temporal } from "zundo"
 
 import { getExampleProject } from "@/engine/example"
 import type {
@@ -46,6 +47,8 @@ interface AppState {
 
   addRoom: (unitIndex: number, room?: Room) => void
   removeRoom: (path: RoomPath) => void
+  /** Dupliziert den Raum und fügt die Kopie direkt dahinter ein. */
+  duplicateRoom: (path: RoomPath) => void
   updateRoom: (path: RoomPath, patch: Partial<Room>) => void
 
   addComponent: (path: RoomPath, component: BuildingComponent) => void
@@ -110,9 +113,16 @@ function emptyProject(): Project {
 const roomAt = (state: { project: Project }, path: RoomPath): Room =>
   state.project.usageUnits[path.unitIndex].rooms[path.roomIndex]
 
+/** Für Undo/Redo verfolgte Teilmenge des States. */
+export interface UndoableState {
+  project: Project
+  params: CalculationParams
+}
+
 export const useProjectStore = create<AppState>()(
   persist(
-    immer((set) => ({
+    temporal(
+      immer((set) => ({
       project: getExampleProject(),
       params: defaultParams(),
       wizard: initialWizardState(),
@@ -193,6 +203,22 @@ export const useProjectStore = create<AppState>()(
           s.project.usageUnits[path.unitIndex].rooms.splice(path.roomIndex, 1)
           s.hasSession = true
         }),
+      duplicateRoom: (path) =>
+        set((s) => {
+          const unit = s.project.usageUnits[path.unitIndex]
+          const original = unit.rooms[path.roomIndex]
+          if (!original) return
+          const copy: Room = JSON.parse(JSON.stringify(original))
+          const existingIds = new Set(
+            s.project.usageUnits.flatMap((u) => u.rooms.map((r) => r.id)),
+          )
+          let n = 2
+          while (existingIds.has(`${original.id}-${n}`)) n++
+          copy.id = `${original.id}-${n}`
+          copy.name = `${original.name} (Kopie)`
+          unit.rooms.splice(path.roomIndex + 1, 0, copy)
+          s.hasSession = true
+        }),
       updateRoom: (path, patch) =>
         set((s) => {
           Object.assign(roomAt(s, path), patch)
@@ -261,7 +287,29 @@ export const useProjectStore = create<AppState>()(
         set((s) => {
           s.wizard = initialWizardState()
         }),
-    })),
+      })),
+      {
+        // Nur Projekt + Parameter sind undo-fähig; der Assistent hat seine
+        // eigene Schritt-Navigation
+        partialize: (s): UndoableState => ({
+          project: s.project,
+          params: s.params,
+        }),
+        limit: 50,
+        equality: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+        // Tipp-Eingaben (z.B. Namen) nicht zeichenweise historisieren
+        handleSet: (handleSet) => {
+          let lastCall = 0
+          return (state) => {
+            const now = Date.now()
+            if (now - lastCall > 400) {
+              lastCall = now
+              handleSet(state)
+            }
+          }
+        },
+      },
+    ),
     {
       name: "heizlast-web:v1",
       version: 1,

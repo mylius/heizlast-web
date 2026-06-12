@@ -99,7 +99,58 @@ export function ReportPage() {
       </div>
 
       <article className="report space-y-6 text-sm">
-        <header>
+        <section className="report-cover flex min-h-[60vh] flex-col rounded-lg border p-8 print:min-h-[calc(100vh-30mm)] print:rounded-none print:border-none print:p-0">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">
+              Heizlastberechnung nach DIN EN 12831
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {project.projectId || project.description || "Heizlastberechnung"}
+            </h1>
+            {project.description && project.projectId && (
+              <p className="text-lg text-muted-foreground">
+                {project.description}
+              </p>
+            )}
+            {project.address && <p className="text-sm">{project.address}</p>}
+          </div>
+
+          <dl className="mt-10 grid max-w-md grid-cols-[auto_1fr] gap-x-6 gap-y-1.5">
+            <dt className="text-muted-foreground">Datum</dt>
+            <dd>{dateStr}</dd>
+            <dt className="text-muted-foreground">
+              Norm-Außentemperatur θ<sub>e</sub>
+            </dt>
+            <dd>{fmt(params.thetaEC)} °C</dd>
+            <dt className="text-muted-foreground">Räume</dt>
+            <dd>{allRoomResults.length}</dd>
+            <dt className="text-muted-foreground">Normheizlast gesamt</dt>
+            <dd className="text-xl font-bold">
+              {Math.trunc(results.totalPhiHlW)} W
+            </dd>
+          </dl>
+
+          <div className="mt-auto grid grid-cols-2 gap-12 pt-16">
+            <div>
+              <div className="border-t pt-1 text-xs text-muted-foreground">
+                Ort, Datum
+              </div>
+            </div>
+            <div>
+              <div className="border-t pt-1 text-xs text-muted-foreground">
+                Unterschrift Ersteller/in
+              </div>
+            </div>
+          </div>
+          <p className="mt-6 text-[10px] leading-snug text-muted-foreground">
+            Berechnung der Norm-Heizlast (Transmissions- und
+            Lüftungswärmeverluste) nach DIN EN 12831-1. Erstellt mit
+            heizlast-web; Eingabedaten und Annahmen sind in den folgenden
+            Raumblättern dokumentiert und vom Ersteller zu verantworten.
+          </p>
+        </section>
+
+        <header className="print-page-break">
           <h1 className="text-2xl font-bold">RAUMHEIZLAST DIN EN 12831</h1>
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5">
             <dt className="font-semibold">Projekt:</dt>

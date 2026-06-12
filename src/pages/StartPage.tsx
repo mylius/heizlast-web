@@ -1,4 +1,6 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FolderOpen, Save, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,12 +13,20 @@ import {
 } from "@/components/ui/card"
 import { deKw } from "@/lib/format"
 import { openProjectFile } from "@/lib/projectFile"
+import {
+  deleteFromLibrary,
+  listStoredProjects,
+  loadFromLibrary,
+  saveToLibrary,
+} from "@/lib/projectLibrary"
 import { useProjectStore } from "@/store/projectStore"
 import { useProjectResults } from "@/store/selectors"
 
 export function StartPage() {
   const navigate = useNavigate()
   const hasSession = useProjectStore((s) => s.hasSession)
+  const params = useProjectStore((s) => s.params)
+  const [library, setLibrary] = useState(listStoredProjects)
   const project = useProjectStore((s) => s.project)
   const resetToDemo = useProjectStore((s) => s.resetToDemo)
   const newEmptyProject = useProjectStore((s) => s.newEmptyProject)
@@ -131,6 +141,74 @@ export function StartPage() {
           Leeres Projekt
         </Button>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Projektbibliothek</CardTitle>
+          <CardDescription>
+            Benannte Projekte im Browser speichern — zusätzlich zur
+            automatisch gemerkten Sitzung und unabhängig von JSON-Dateien.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {library.map((entry) => (
+            <div
+              key={entry.key}
+              className="flex items-center gap-3 rounded-md border px-3 py-2 text-sm"
+            >
+              <span className="truncate font-medium">{entry.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date(entry.savedAt).toLocaleString("de-DE", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </span>
+              <div className="ml-auto flex gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (loadFromLibrary(entry.key)) navigate("/profi")
+                  }}
+                >
+                  <FolderOpen /> Laden
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-8 text-destructive"
+                  aria-label={`„${entry.name}" löschen`}
+                  onClick={() => {
+                    if (window.confirm(`„${entry.name}" aus der Bibliothek löschen?`)) {
+                      deleteFromLibrary(entry.key)
+                      setLibrary(listStoredProjects())
+                    }
+                  }}
+                >
+                  <Trash2 />
+                </Button>
+              </div>
+            </div>
+          ))}
+          {library.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Noch keine gespeicherten Projekte.
+            </p>
+          )}
+          {hasSession && (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                saveToLibrary(project, params)
+                setLibrary(listStoredProjects())
+              }}
+            >
+              <Save /> Aktuelles Projekt speichern
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
       <p className="text-center text-xs text-muted-foreground">
         Die Berechnung deckt Transmissions- und Lüftungswärmeverluste nach

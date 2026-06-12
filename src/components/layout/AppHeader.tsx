@@ -1,5 +1,13 @@
 import { Link, useLocation } from "react-router-dom"
+import { Redo2, Undo2 } from "lucide-react"
+import { useStore } from "zustand"
 
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useProjectStore } from "@/store/projectStore"
 
@@ -14,6 +22,9 @@ export function AppHeader() {
   const { pathname } = useLocation()
   const projectId = useProjectStore((s) => s.project.projectId)
   const description = useProjectStore((s) => s.project.description)
+  const { undo, redo, pastStates, futureStates } = useStore(
+    useProjectStore.temporal,
+  )
 
   return (
     <header className="border-b bg-background print:hidden">
@@ -38,7 +49,39 @@ export function AppHeader() {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto truncate text-sm text-muted-foreground">
+        <div className="ml-auto flex items-center gap-0.5">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={pastStates.length === 0}
+                aria-label="Rückgängig"
+                onClick={() => undo()}
+              >
+                <Undo2 />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Rückgängig (⌘Z)</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={futureStates.length === 0}
+                aria-label="Wiederherstellen"
+                onClick={() => redo()}
+              >
+                <Redo2 />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Wiederherstellen (⇧⌘Z)</TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="truncate text-sm text-muted-foreground">
           {projectId || description}
         </div>
       </div>
