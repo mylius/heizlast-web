@@ -178,7 +178,7 @@ function StoreyRow({ storey }: { storey: Storey }) {
             <SmallField label="f_ix">
               <NumberField
                 value={storey.fbFIx}
-                onCommit={(v) => update({ fbFIx: v ?? 0.33 })}
+                onCommit={(v) => update({ fbFIx: v ?? 1.0 })}
               />
             </SmallField>
             <SmallField label="grenzt an">

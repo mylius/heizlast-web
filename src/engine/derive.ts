@@ -139,7 +139,11 @@ export function effectiveComponents(
   }))
   if (storey === undefined) return out
   const hasDe = room.components.some((c) => c.componentType === "DE")
-  const hasFb = room.components.some((c) => c.componentType === "FB")
+  // BA (Boden gegen Außenluft) ist ebenfalls ein Fußboden: Räume mit BA
+  // dürfen nicht zusätzlich den Default-FB erhalten (doppelter Boden)
+  const hasFb = room.components.some(
+    (c) => c.componentType === "FB" || c.componentType === "BA",
+  )
   if (storey.addDefaultDe && !hasDe) {
     out.push({ component: makeStoreyDe(storey, aFloorM2(room)), fromStorey: true })
   }

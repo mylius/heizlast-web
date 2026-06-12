@@ -175,7 +175,7 @@ export function parseProjectJson(data: unknown): Project {
       ceilingThicknessM: s.ceiling_thickness_m ?? 0.2,
       fbThetaAdjacentC: s.fb_theta_adjacent_c ?? 10.0,
       fbUValue: s.fb_u_value ?? 1.6,
-      fbFIx: s.fb_f_ix ?? 0.33,
+      fbFIx: s.fb_f_ix ?? 1.0,
       deThetaAdjacentC: s.de_theta_adjacent_c ?? 20.0,
       deUValue: s.de_u_value ?? 0.97,
     })

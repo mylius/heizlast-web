@@ -14,9 +14,18 @@ export type AboveSituation = "beheizt" | "dach-unbeheizt" | "flachdach" | "dachs
 export interface WizardStoreyInput {
   id: string
   label: string
+  /**
+   * Raumhöhe; bei Geschossen mit Dachschrägen die MITTLERE Höhe
+   * ((Kniestock + First) / 2) — damit sind Giebelwände (Trapeze) und das
+   * Raumvolumen automatisch flächenrichtig.
+   */
   heightM: number
   below: BelowSituation
   above: AboveSituation
+  /** Kniestockhöhe (nur bei above = "dachschraegen") */
+  kniestockM?: number | null
+  /** Firsthöhe (nur bei above = "dachschraegen") */
+  firstM?: number | null
 }
 
 export interface WizardWallInput {

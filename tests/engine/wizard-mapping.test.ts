@@ -46,14 +46,17 @@ describe("buildProjectFromWizard", () => {
     })
 
     const room = results.unitResults[0].roomResults[0]
-    // AW: brutto 5×2,6 = 13, Abzug 1,5 → A 11,5; Φ = 11,5·1,4·1·32 = 515,2 → 515
-    // AF: 1,5·2,8·1·32 = 134,4 → 134
-    // DE (unbeheizter Dachboden): 20·1,4·1·(20−10) = 280
-    // FB (unbeheizter Keller): 20·1,6·0,33·10 = 105,6 → 106
-    expect(room.phiTStandW).toBe(515 + 134 + 280 + 106)
+    // AW: brutto 5×2,6 = 13, Abzug 1,5 → A 11,5; U_korr 1,4+0,1 = 1,5;
+    //     Φ = 11,5·1,5·1·32 = 552
+    // AF: U_korr 2,8+0,1 = 2,9 → 1,5·2,9·32 = 139,2 → 139
+    // DE (unbeheizter Dachboden, b = 0,9): θ_eff = 20 − 0,9·32 = −8,8;
+    //     Φ = 20·1,4·28,8 = 806,4 → 806
+    // FB (unbeheizter Keller, b = 0,5): θ_eff = 20 − 0,5·32 = 4;
+    //     Φ = 20·1,6·16 = 512
+    expect(room.phiTStandW).toBe(552 + 139 + 806 + 512)
     // V = 20·2,4 = 48 → q_V = 24 → Φ_V = 24·0,34·32 = 261,12 → 261
     expect(room.phiVStandW).toBe(261)
-    expect(room.phiHlW).toBe(1296)
+    expect(room.phiHlW).toBe(2270)
     // Bauteilzeilen: AW, AF (Öffnung), DE und FB aus dem Geschoss
     expect(
       room.componentResults.map((c) => c.component.componentType),

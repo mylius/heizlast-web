@@ -5,7 +5,7 @@
  * Öffnungen erscheinen als eingerückte Unterzeilen ihrer Wand.
  */
 import { useMemo, useState } from "react"
-import { CopyPlus, Plus, SquarePlus, Trash2 } from "lucide-react"
+import { CopyPlus, Plus, SquarePlus, Trash2, TriangleAlert } from "lucide-react"
 
 import { NumberField } from "@/components/inputs/NumberField"
 import { Badge } from "@/components/ui/badge"
@@ -147,6 +147,7 @@ export function ComponentGrid({
                   key={`c-${i}`}
                   row={row}
                   path={path}
+                  thetaEC={thetaEC}
                   onAddOpening={(componentIndex) =>
                     setPresetTarget({ kind: "opening", componentIndex })
                   }
@@ -244,10 +245,12 @@ function OrientationSelect({
 function ComponentRow({
   row,
   path,
+  thetaEC,
   onAddOpening,
 }: {
   row: GridRow
   path: RoomPath
+  thetaEC: number
   onAddOpening: (componentIndex: number) => void
 }) {
   const store = useProjectStore()
@@ -311,6 +314,13 @@ function ComponentRow({
   }
 
   const hasOpenings = c.openings.length > 0
+  // f_ix ∉ {0, 1} zusammen mit einer von θ_e abweichenden Nachbartemperatur
+  // mindert doppelt (DIN: entweder Faktor gegen θ_e ODER tatsächliche Temperatur)
+  const doubleReduction =
+    c.fIx !== null &&
+    c.fIx !== 0 &&
+    c.fIx !== 1 &&
+    Math.abs(c.thetaAdjacentC - thetaEC) > 1
   return (
     <TableRow>
       <TableCell>
@@ -413,24 +423,39 @@ function ComponentRow({
         />
       </TableCell>
       <TableCell>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <NumberField
-                className="h-7 w-16"
-                aria-label="f_ix"
-                value={c.fIx}
-                onCommit={(fIx) => update({ fIx })}
-                nullable
-                placeholder={`auto ${de(res.fIx, 2)}`}
-              />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            Leer = automatisch (0 bei „ij", 1 bei „e"). Explizite Werte —
-            auch 0 oder negativ — haben Vorrang.
-          </TooltipContent>
-        </Tooltip>
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <NumberField
+                  className="h-7 w-16"
+                  aria-label="f_ix"
+                  value={c.fIx}
+                  onCommit={(fIx) => update({ fIx })}
+                  nullable
+                  placeholder={`auto ${de(res.fIx, 2)}`}
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Leer = automatisch (0 bei „ij", 1 bei „e"). Explizite Werte —
+              auch 0 oder negativ — haben Vorrang.
+            </TooltipContent>
+          </Tooltip>
+          {doubleReduction && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TriangleAlert className="size-4 shrink-0 text-amber-500" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-72">
+                Mögliche doppelte Temperaturminderung: f_ix ≠ 1 zusammen mit
+                einer angrenzenden Temperatur ≠ θ_e. Nach DIN EN 12831
+                entweder die tatsächliche Nachbartemperatur mit f_ix leer/1
+                verwenden, oder den f-Faktor mit θ_adj = θ_e.
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </TableCell>
       <TableCell>
         <NumberField

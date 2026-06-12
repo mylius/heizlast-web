@@ -77,7 +77,11 @@ export interface BuildingComponent {
   openings: BuildingComponent[]
   adjacent: AdjacentType
   thetaAdjacentC: number
-  /** Temperaturanpassungsfaktor; null ⇒ abgeleitet (0 intern, 1 extern) */
+  /**
+   * Temperaturanpassungsfaktor; null ⇒ abgeleitet (0 intern, 1 extern).
+   * DIN-Konvention: ENTWEDER tatsächliche Nachbartemperatur mit f_ix = 1/null,
+   * ODER θ_adj = θ_e mit Normfaktor f_x = (θ_i−θ_u)/(θ_i−θ_e) — nie beides.
+   */
   fIx: number | null
   uValue: number
   deltaUTb: number
@@ -174,7 +178,9 @@ export function makeStorey(
     ceilingThicknessM: 0.2,
     fbThetaAdjacentC: 10.0,
     fbUValue: 1.6,
-    fbFIx: 0.33,
+    // Konvention: θ ist die TATSÄCHLICHE Nachbartemperatur, daher f_ix = 1
+    // (f_ix < 1 zusätzlich zur tatsächlichen Temperatur würde doppelt mindern)
+    fbFIx: 1.0,
     fbAdjacent: "e",
     deThetaAdjacentC: 20.0,
     deUValue: 0.97,

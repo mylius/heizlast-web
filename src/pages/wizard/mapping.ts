@@ -30,6 +30,23 @@ const FB_U_UNHEATED_BELOW: Record<WizardState["era"], number> = {
   passivhaus: 0.25,
 }
 
+/**
+ * Effektive Nachbartemperatur aus dem b-Faktor (DIN EN 12831 Bbl. 1):
+ * θ_eff = θ_i − b·(θ_i − θ_e), mit θ_i = 20 °C als Referenz. Die Bauteile
+ * rechnen dann mit f_ix = 1 gegen diese Temperatur (Norm-äquivalent zum
+ * f_x-Verfahren gegen θ_e).
+ */
+function effectiveAdjacentTemp(b: number, thetaE: number): number {
+  return Math.round((20 - b * (20 - thetaE)) * 10) / 10
+}
+
+/** b-Faktoren nach Beiblatt 1 (vereinfacht). */
+const B_FACTOR = {
+  kellerUnbeheizt: 0.5,
+  dachbodenUnbeheizt: 0.9,
+  erdreich: 0.33,
+} as const
+
 const DE_U_TOP: Record<WizardState["era"], number> = {
   // Oberste Geschossdecke zum unbeheizten Dachraum / Flachdach
   altbau: 1.4,
@@ -62,26 +79,45 @@ function buildStorey(
   wizard: WizardState,
 ): Storey {
   const era = wizard.era
+  const thetaE = wizard.thetaEC
+  // Konvention: tatsächliche/effektive Nachbartemperatur mit f_ix = 1
+  // (bzw. 0 bei beheizt-intern) — nie f-Faktor UND Temperatur kombinieren
   const fb =
     input.below === "beheizt"
       ? { theta: 20.0, u: DE_U_HEATED, fIx: 0.0, adjacent: "ij" as const }
       : input.below === "aussenluft"
         ? {
-            theta: wizard.thetaEC,
+            theta: thetaE,
             u: effectivePresetFor(wizard, "BA").uValue,
             fIx: 1.0,
             adjacent: "e" as const,
           }
-        : // unbeheizter Keller oder Erdreich: vereinfacht θ 10 °C, f_ix 0,33
-          { theta: 10.0, u: FB_U_UNHEATED_BELOW[era], fIx: 0.33, adjacent: "e" as const }
+        : input.below === "erdreich"
+          ? {
+              theta: effectiveAdjacentTemp(B_FACTOR.erdreich, thetaE),
+              u: FB_U_UNHEATED_BELOW[era],
+              fIx: 1.0,
+              adjacent: "e" as const,
+            }
+          : {
+              theta: effectiveAdjacentTemp(B_FACTOR.kellerUnbeheizt, thetaE),
+              u: FB_U_UNHEATED_BELOW[era],
+              fIx: 1.0,
+              adjacent: "e" as const,
+            }
 
   const de =
     input.above === "beheizt"
       ? { theta: 20.0, u: DE_U_HEATED, adjacent: "ij" as const, add: true }
       : input.above === "dach-unbeheizt"
-        ? { theta: 10.0, u: DE_U_TOP[era], adjacent: "e" as const, add: true }
+        ? {
+            theta: effectiveAdjacentTemp(B_FACTOR.dachbodenUnbeheizt, thetaE),
+            u: DE_U_TOP[era],
+            adjacent: "e" as const,
+            add: true,
+          }
         : input.above === "flachdach"
-          ? { theta: wizard.thetaEC, u: DE_U_TOP[era], adjacent: "e" as const, add: true }
+          ? { theta: thetaE, u: DE_U_TOP[era], adjacent: "e" as const, add: true }
           : // Dachschrägen werden als DA-Bauteile im Raum erfasst
             { theta: 20.0, u: DE_U_HEATED, adjacent: "ij" as const, add: false }
 

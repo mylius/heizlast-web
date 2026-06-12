@@ -33,9 +33,10 @@ export function getExampleProject(): Project {
       id: "EG",
       storeyHeightM: 2.58,
       ceilingThicknessM: 0.2,
+      // Kellerdecke: tatsächliche Kellertemperatur 10 °C, daher f_ix = 1
       fbThetaAdjacentC: 10.0,
       fbUValue: 1.6,
-      fbFIx: 0.33,
+      fbFIx: 1.0,
       fbAdjacent: "e",
       deThetaAdjacentC: 20.0,
       deUValue: 0.97,
@@ -124,7 +125,13 @@ export function getExampleProject(): Project {
       lengthHeightM: null,
       openings: [af(1.0)],
     }),
-    buildFromPreset(Iw, { orientation: "S", bruttoM2: 9.23, fIxOverride: -0.13 }),
+    // Innenwand zum Bad (24 °C): tatsächliche Nachbartemperatur, f_ix = 1 → Gewinn
+    buildFromPreset(Iw, {
+      orientation: "S",
+      bruttoM2: 9.23,
+      thetaAdjacentCOverride: 24.0,
+      fIxOverride: 1.0,
+    }),
   ]
   rooms.push(og1R1)
 
@@ -156,12 +163,13 @@ export function getExampleProject(): Project {
       openings: [af(1.5)],
     }),
     buildFromPreset(Iw, { orientation: "S", bruttoM2: 1.89 }),
+    // Innenwand zum Flur (15 °C): tatsächliche Nachbartemperatur, f_ix = 1
     buildFromPreset(Iw, {
       orientation: "S",
       bruttoM2: 6.29,
       abzugM2: 1.7,
       thetaAdjacentCOverride: 15.0,
-      fIxOverride: 0.17,
+      fIxOverride: 1.0,
     }),
   ]
   rooms.push(og1R2)

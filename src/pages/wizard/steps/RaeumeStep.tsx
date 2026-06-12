@@ -95,6 +95,16 @@ export function RaeumeStep() {
                 {rooms.length} {rooms.length === 1 ? "Raum" : "Räume"}
               </span>
             </h3>
+            {storey.above === "dachschraegen" && (
+              <p className="text-xs text-muted-foreground">
+                Dachgeschoss: <strong>Giebelwände</strong> einfach als
+                Außenwand mit ihrer Länge erfassen — durch die mittlere
+                Raumhöhe (aus Kniestock/First in Schritt 3) wird die
+                Trapezfläche automatisch richtig angesetzt. Die{" "}
+                <strong>Dachschrägen</strong> mit Breite (entlang der Traufe)
+                und schräg gemessener Schrägenlänge angeben.
+              </p>
+            )}
             {rooms.map((room) => (
               <RoomCard
                 key={room.key}
@@ -296,13 +306,21 @@ function RoomCard({
         )}
         {hasRoof && (
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-xs text-muted-foreground">Breite</span>
+            <span
+              className="text-xs text-muted-foreground underline decoration-dotted"
+              title="Horizontale Länge der Dachfläche entlang der Traufe/des Firsts — meist die Raumlänge. NICHT die Höhe."
+            >
+              Breite (entlang Traufe)
+            </span>
             <NumberField
               className="w-20"
               value={room.roofWidthM}
               onCommit={(v) => onUpdate({ roofWidthM: v ?? 0 })}
             />
-            <span className="text-xs text-muted-foreground">
+            <span
+              className="text-xs text-muted-foreground underline decoration-dotted"
+              title="Schräg gemessene Länge der Dachfläche vom Kniestock bis zum First (Zollstock an der Schräge entlang)."
+            >
               m · Schrägenlänge
             </span>
             <NumberField

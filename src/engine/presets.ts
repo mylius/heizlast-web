@@ -42,8 +42,10 @@ export interface ComponentPreset {
   extension?: boolean
 }
 
+// Außenbauteile tragen den pauschalen Wärmebrückenzuschlag ΔU_TB = 0,10
+// W/(m²K) nach DIN/TS 12831-1 (ohne detaillierten Nachweis)
 const ext = (p: Omit<ComponentPreset, "deltaUTb" | "adjacent" | "thetaAdjacentC" | "fIx"> & Partial<ComponentPreset>): ComponentPreset => ({
-  deltaUTb: 0,
+  deltaUTb: 0.1,
   adjacent: "e",
   thetaAdjacentC: DEFAULT_THETA_E_C,
   fIx: 1.0,

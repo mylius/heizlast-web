@@ -24,7 +24,7 @@ import type {
 } from "../types"
 
 const BELOW_OPTIONS: { id: BelowSituation; label: string }[] = [
-  { id: "keller-unbeheizt", label: "Unbeheizter Keller (≈ 10 °C)" },
+  { id: "keller-unbeheizt", label: "Unbeheizter Keller" },
   { id: "erdreich", label: "Erdreich / Bodenplatte" },
   { id: "beheizt", label: "Beheiztes Geschoss" },
   { id: "aussenluft", label: "Außenluft (z.B. Durchfahrt)" },
@@ -42,8 +42,21 @@ const STOREY_TEMPLATES: WizardStoreyInput[] = [
   { id: "EG", label: "Erdgeschoss", heightM: 2.6, below: "keller-unbeheizt", above: "beheizt" },
   { id: "OG1", label: "1. Obergeschoss", heightM: 2.6, below: "beheizt", above: "beheizt" },
   { id: "OG2", label: "2. Obergeschoss", heightM: 2.6, below: "beheizt", above: "beheizt" },
-  { id: "DG", label: "Dachgeschoss", heightM: 2.2, below: "beheizt", above: "dachschraegen" },
+  {
+    id: "DG",
+    label: "Dachgeschoss",
+    heightM: 2.2,
+    below: "beheizt",
+    above: "dachschraegen",
+    kniestockM: 1.0,
+    firstM: 3.4,
+  },
 ]
+
+function meanHeight(kniestockM: number | null, firstM: number | null): number | null {
+  if (!kniestockM || !firstM) return null
+  return Math.round(((kniestockM + firstM) / 2) * 100) / 100
+}
 
 export function GeschosseStep() {
   const wizard = useProjectStore((s) => s.wizard)
@@ -105,15 +118,17 @@ export function GeschosseStep() {
             </Button>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">
-                Raumhöhe (m)
-              </Label>
-              <NumberField
-                value={st.heightM}
-                onCommit={(v) => update(i, { heightM: v ?? 2.6 })}
-              />
-            </div>
+            {st.above !== "dachschraegen" && (
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">
+                  Raumhöhe (m)
+                </Label>
+                <NumberField
+                  value={st.heightM}
+                  onCommit={(v) => update(i, { heightM: v ?? 2.6 })}
+                />
+              </div>
+            )}
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">
                 Was liegt darunter?
@@ -140,7 +155,21 @@ export function GeschosseStep() {
               </Label>
               <Select
                 value={st.above}
-                onValueChange={(v) => update(i, { above: v as AboveSituation })}
+                onValueChange={(v) => {
+                  const above = v as AboveSituation
+                  if (above === "dachschraegen") {
+                    const k = st.kniestockM ?? 1.0
+                    const f = st.firstM ?? 3.4
+                    update(i, {
+                      above,
+                      kniestockM: k,
+                      firstM: f,
+                      heightM: meanHeight(k, f) ?? st.heightM,
+                    })
+                  } else {
+                    update(i, { above, kniestockM: null, firstM: null })
+                  }
+                }}
               >
                 <SelectTrigger size="sm" className="h-9 w-full">
                   <SelectValue />
@@ -155,6 +184,62 @@ export function GeschosseStep() {
               </Select>
             </div>
           </div>
+          {st.above === "dachschraegen" && (
+            <div className="space-y-2 rounded-md bg-muted/40 p-3">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    Kniestockhöhe (m)
+                  </Label>
+                  <NumberField
+                    value={st.kniestockM ?? null}
+                    onCommit={(v) => {
+                      const k = v ?? 1.0
+                      update(i, {
+                        kniestockM: k,
+                        heightM:
+                          meanHeight(k, st.firstM ?? null) ?? st.heightM,
+                      })
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    Firsthöhe (m)
+                  </Label>
+                  <NumberField
+                    value={st.firstM ?? null}
+                    onCommit={(v) => {
+                      const f = v ?? 3.4
+                      update(i, {
+                        firstM: f,
+                        heightM:
+                          meanHeight(st.kniestockM ?? null, f) ?? st.heightM,
+                      })
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    Mittlere Raumhöhe
+                  </Label>
+                  <div className="flex h-9 items-center text-sm font-medium tabular-nums">
+                    {st.heightM.toLocaleString("de-DE", {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    m
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Volumen und Wandflächen werden mit der mittleren Höhe
+                (Kniestock + First) / 2 gerechnet.{" "}
+                <strong>Giebelwände</strong> (Trapezform) einfach mit ihrer
+                Länge erfassen — über die mittlere Höhe ergibt sich
+                automatisch die richtige Trapezfläche.
+              </p>
+            </div>
+          )}
         </div>
       ))}
 

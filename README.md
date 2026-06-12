@@ -60,6 +60,17 @@ andere CPU-Architektur hat als Bun).
 - Abgedeckt: Transmissions- und Lüftungswärmeverluste nach EN 12831-1
   (Mindestluftwechsel nach Raumart, Temperaturkorrekturfaktoren,
   Wärmebrückenzuschläge, Aufheizzuschlag, Nutzungseinheiten-Summen).
+- **Temperatur-Konvention:** Φ_T,k = A·U·f_ix·(θᵢ−θ_adj) kennt zwei
+  gleichwertige DIN-Schreibweisen — tatsächliche Nachbartemperatur mit
+  f_ix = 1/leer, oder θ_adj = θ_e mit Normfaktor f_x. Beides zusammen
+  mindert doppelt; der Profi-Modus warnt bei dieser Kombination.
+- Der Assistent setzt unbeheizte Nachbarbereiche über effektive
+  Temperaturen aus b-Faktoren an (Beiblatt 1, vereinfacht): unbeheizter
+  Keller b = 0,5, unbeheizter Dachboden b = 0,9, Erdreich b ≈ 0,33.
+- Außenbauteil-Vorlagen enthalten den pauschalen Wärmebrückenzuschlag
+  ΔU_TB = 0,10 W/(m²K) nach DIN/TS 12831-1.
+- Dachgeschosse: Kniestock- und Firsthöhe ergeben die mittlere Raumhöhe —
+  Volumen und Giebelwände (Trapezflächen) sind damit automatisch richtig.
 - Vereinfacht: erdreichberührte Bodenplatten (kein B′-Verfahren),
   Infiltration nicht separat von der Mindestlüftung, keine
   Verteilverluste (EN 12831-2).
