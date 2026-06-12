@@ -19,6 +19,7 @@ import {
   type Storey,
 } from "@/engine/types"
 
+import { normalizeStack } from "./stack"
 import type { WizardState, WizardRoomInput, WizardStoreyInput } from "./types"
 
 /** Typische U-Werte für Geschoss-Defaults nach Baualtersklasse. */
@@ -234,13 +235,16 @@ function buildRoom(
 }
 
 export function buildProjectFromWizard(wizard: WizardState): Project {
+  // Grenzen normalisieren (auch für ältere gespeicherte Sitzungen):
+  // zwischen zwei Geschossen immer „beheizt", kanonische Reihenfolge
+  const stack = normalizeStack(wizard.storeys)
   const storeys: Record<string, Storey> = {}
-  for (const st of wizard.storeys) {
+  for (const st of stack) {
     storeys[st.id] = buildStorey(st, wizard)
   }
 
   const rooms: Room[] = []
-  for (const st of wizard.storeys) {
+  for (const st of stack) {
     const inStorey = wizard.rooms.filter((r) => r.storeyId === st.id)
     inStorey.forEach((input, i) => rooms.push(buildRoom(input, i, wizard)))
   }
