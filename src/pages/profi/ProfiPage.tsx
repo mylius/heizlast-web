@@ -4,7 +4,15 @@
  */
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Building2, FileDown, FileUp, FileText, LayoutList, Plus } from "lucide-react"
+import {
+  Building2,
+  FileDown,
+  FileUp,
+  FileText,
+  LayoutList,
+  Plus,
+  Trash2,
+} from "lucide-react"
 
 import { LoadBars } from "@/components/results/LoadBars"
 import { UnitTotalsTable } from "@/components/results/UnitTotalsTable"
@@ -101,6 +109,26 @@ export function ProfiPage() {
               <span className="text-xs text-muted-foreground tabular-nums">
                 {deWatt(results.unitResults[unitIndex]?.phiHlW ?? 0)}
               </span>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-6 shrink-0 text-muted-foreground hover:text-destructive"
+                aria-label={`${unit.name} löschen`}
+                onClick={() => {
+                  if (
+                    unit.rooms.length > 0 &&
+                    !window.confirm(
+                      `„${unit.name}" mit ${unit.rooms.length} ${unit.rooms.length === 1 ? "Raum" : "Räumen"} löschen?`,
+                    )
+                  ) {
+                    return
+                  }
+                  store.removeUnit(unitIndex)
+                  setSelection({ kind: "overview" })
+                }}
+              >
+                <Trash2 />
+              </Button>
             </div>
             {unit.rooms.map((room, roomIndex) => (
               <SidebarItem
