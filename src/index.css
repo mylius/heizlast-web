@@ -161,8 +161,10 @@
 }
 
 @media print {
+    /* Kein festes "size: A4": das Papierformat kommt aus dem Druckdialog.
+       Ein erzwungenes A4 würde auf US-Letter-Papier skaliert/verschoben
+       und die Ränder verfälschen — die 15 mm gelten so auf jedem Format. */
     @page {
-        size: A4;
         margin: 15mm;
     }
 
