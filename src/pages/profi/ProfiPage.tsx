@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 
 import { LoadBars } from "@/components/results/LoadBars"
+import { SankeyChart } from "@/components/results/SankeyChart"
 import { UnitTotalsTable } from "@/components/results/UnitTotalsTable"
 import { ZonesTable } from "@/components/results/ZonesTable"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ import { Separator } from "@/components/ui/separator"
 import { deKw, deWatt } from "@/lib/format"
 import { openProjectFile, saveProjectFile } from "@/lib/projectFile"
 import { cn } from "@/lib/utils"
+import { aggregateHeatLoss } from "@/engine/breakdown"
 import { validateProject } from "@/engine/validate"
 import { useProjectStore } from "@/store/projectStore"
 import { useProjectResults } from "@/store/selectors"
@@ -202,6 +204,14 @@ export function ProfiPage() {
               </CardHeader>
               <CardContent>
                 <ZonesTable project={project} results={results} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Wohin geht die Wärme?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SankeyChart breakdown={aggregateHeatLoss(results)} />
               </CardContent>
             </Card>
             <div className="grid gap-6 xl:grid-cols-2">

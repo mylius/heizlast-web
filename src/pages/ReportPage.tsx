@@ -8,6 +8,8 @@ import { ArrowLeft, FileDown, FileSpreadsheet, FileText, Printer } from "lucide-
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { SankeyChart } from "@/components/results/SankeyChart"
+import { aggregateHeatLoss } from "@/engine/breakdown"
 import type { RoomResult } from "@/engine/calc"
 import {
   aFloorM2,
@@ -270,6 +272,13 @@ export function ReportPage() {
               )}
             </tbody>
           </table>
+        </section>
+
+        <section>
+          <h2 className="report-h2">3. Verlustaufteilung</h2>
+          <div className="max-w-2xl">
+            <SankeyChart breakdown={aggregateHeatLoss(results)} />
+          </div>
         </section>
 
         {allRoomResults.map((res, i) => (

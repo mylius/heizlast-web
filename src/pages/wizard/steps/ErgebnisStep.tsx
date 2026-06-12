@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { FileDown, FileText, SlidersHorizontal } from "lucide-react"
 
 import { LoadBars } from "@/components/results/LoadBars"
+import { SankeyChart } from "@/components/results/SankeyChart"
 import { UnitTotalsTable } from "@/components/results/UnitTotalsTable"
 import { ZonesTable } from "@/components/results/ZonesTable"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { aggregateHeatLoss } from "@/engine/breakdown"
 import { computeProject } from "@/engine/calc"
 import { aFloorM2 } from "@/engine/derive"
 import { validateProject } from "@/engine/validate"
@@ -94,6 +96,19 @@ export function ErgebnisStep() {
           </ul>
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Wohin geht die Wärme?</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SankeyChart breakdown={aggregateHeatLoss(results)} />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Die größten Posten sind die wirksamsten Ansatzpunkte für eine
+            Sanierung — was hier oben steht, lohnt sich zuerst.
+          </p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
