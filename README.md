@@ -16,28 +16,22 @@ Zwei Modi:
 Exporte: **PDF** (druckoptimierter Bericht, Seitenumbruch je Raum),
 **Markdown**, **Excel (XLSX)** und **Projektdatei (JSON)**.
 
-## Beziehung zum Python-Projekt `heizlastrechner`
+## Verifikation
 
-Die Berechnungs-Engine ist eine 1:1-Portierung von
-[`heizlastrechner`](../heizlastrechner) (Python) nach TypeScript:
+Die Engine wird gegen eingecheckte Referenz-Fixtures getestet
+(`tests/fixtures/`):
 
-- **Identische Ergebnisse**: Paritätstests vergleichen jede Bauteilzeile der
-  Beispielprojekte exakt mit von Python generierten Fixtures — inklusive
-  CPython-Rundungsverhalten (Banker's Rounding auf dem exakten Binärwert,
-  `src/engine/round.ts`).
-- **Identischer Markdown-Bericht**: Golden-File-Test gegen die
-  Python-Ausgabe (byte-gleich).
-- **Kompatible Projektdateien**: gespeicherte `.json`-Projekte rechnen im
-  Python-CLI mit identischen Summen (`uv run heizlastrechner projekt.json`).
-  Geschoss-Einstellungen, die das Python-JSON-Format nicht kennt, werden beim
-  Export automatisch in explizite Raum-Bauteile aufgelöst.
-
-Fixtures neu erzeugen (nach Änderungen am Python-Referenzprojekt):
-
-```sh
-cd ../heizlastrechner
-uv run python ../heizlast-web/scripts/gen-fixtures.py
-```
+- **Bauteilgenaue Paritätstests**: jede Zeile der Transmissionstabellen der
+  Beispielprojekte (Flächen, f_ix, U_korr, Φ_T,k) muss exakt den
+  Referenzwerten entsprechen — inklusive kaufmännischem Runden (Banker's
+  Rounding auf dem exakten Binärwert, `src/engine/round.ts`, verifiziert
+  gegen ~390 aufgezeichnete Rundungsfälle).
+- **Golden-File-Test**: der Markdown-Bericht ist byte-identisch zur
+  Referenzausgabe.
+- **Round-Trip-Tests**: gespeicherte `.json`-Projektdateien rechnen nach dem
+  Wiedereinlesen identisch; Geschoss-Einstellungen, die das Dateiformat
+  nicht kennt, werden beim Export automatisch in explizite Raum-Bauteile
+  aufgelöst.
 
 ## Entwicklung
 

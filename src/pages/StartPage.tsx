@@ -133,11 +133,10 @@ export function StartPage() {
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Projektdateien sind mit dem{" "}
-        <code className="rounded bg-muted px-1">heizlastrechner</code>
-        -CLI (Python) austauschbar. Die Berechnung deckt Transmissions- und
-        Lüftungswärmeverluste nach EN 12831-1 ab; Sonderfälle wie erdreich-
-        berührte Bodenplatten (B′-Verfahren) sind vereinfacht.
+        Die Berechnung deckt Transmissions- und Lüftungswärmeverluste nach
+        EN 12831-1 ab; Sonderfälle wie erdreichberührte Bodenplatten
+        (B′-Verfahren) sind vereinfacht. Projekte lassen sich als JSON-Datei
+        speichern und wieder öffnen.
       </p>
     </div>
   )

@@ -1,6 +1,6 @@
 /**
- * Testhilfen: Ergebnis-Dump in der Struktur von scripts/gen-fixtures.py,
- * damit TS-Ergebnisse 1:1 mit den Python-Fixtures verglichen werden können.
+ * Testhilfen: Ergebnis-Dump in der Struktur der Referenz-Fixtures
+ * (tests/fixtures/*.results.json), für den 1:1-Vergleich.
  */
 import { computeProject } from "@/engine/calc"
 import {

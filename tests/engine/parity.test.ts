@@ -1,6 +1,6 @@
 /**
- * Paritätstests: Die TypeScript-Engine muss exakt dieselben Ergebnisse liefern
- * wie die Python-Referenz (Fixtures aus scripts/gen-fixtures.py).
+ * Paritätstests: Die Engine muss exakt die Ergebnisse der Referenz-Fixtures
+ * liefern (tests/fixtures/*.results.json, bauteilgenau).
  */
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
@@ -19,14 +19,14 @@ function loadFixture(name: string) {
   )
 }
 
-describe("Parität mit Python-Referenz", () => {
-  it("Beispielprojekt (default.py)", () => {
+describe("Parität mit Referenz-Fixtures", () => {
+  it("Beispielprojekt", () => {
     const actual = dumpResults(getExampleProject(), defaultParams())
     const expected = loadFixture("default_project.results.json")
     expect(normalize(actual)).toEqual(normalize(expected))
   })
 
-  it("Beispielprojekt gedämmt (insulated.py)", () => {
+  it("Beispielprojekt gedämmt", () => {
     const actual = dumpResults(getExampleProjectInsulated(), defaultParams())
     const expected = loadFixture("insulated_project.results.json")
     expect(normalize(actual)).toEqual(normalize(expected))

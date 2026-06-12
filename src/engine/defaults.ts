@@ -1,6 +1,6 @@
 /**
- * Default-Innentemperaturen und Mindest-Luftwechsel nach Raumart.
- * Portierung der Tabellen aus heizlastrechner/model.py.
+ * Default-Innentemperaturen und Mindest-Luftwechsel nach Raumart
+ * (übliche Auslegungswerte nach DIN EN 12831-1).
  */
 import { ROOM_TYPES, type RoomType } from "./types"
 

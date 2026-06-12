@@ -1,12 +1,10 @@
 /**
  * Abgeleitete Raumgrößen (Fläche, Volumen, q_V,min, effektive Temperaturen)
- * und Geschoss-Default-Bauteile (DE/FB).
- *
- * Portierung der berechneten Properties aus heizlastrechner/model.py als
- * reine Funktionen über (room, storey). Rundungsstellen exakt wie in Python.
+ * und Geschoss-Default-Bauteile (DE/FB) als reine Funktionen über
+ * (room, storey). Zwischenwerte werden wie im RAUMHEIZLAST-Formular gerundet.
  */
 import { defaultNMinForRoomType, defaultThetaIForRoomType } from "./defaults"
-import { pythonRound } from "./round"
+import { roundHalfEven } from "./round"
 import {
   makeComponent,
   type BuildingComponent,
@@ -42,12 +40,12 @@ export function effectiveCeilingThicknessM(
 
 /** Raumfläche A_NGI [m²]. */
 export function aFloorM2(room: Room): number {
-  return pythonRound(room.roomWidthM * room.roomLengthM, 2)
+  return roundHalfEven(room.roomWidthM * room.roomLengthM, 2)
 }
 
 /** Raumhöhe (lichte Höhe) h_i [m]. */
 export function hIM(room: Room, storey?: Storey): number {
-  return pythonRound(
+  return roundHalfEven(
     effectiveStoreyHeightM(room, storey) -
       effectiveCeilingThicknessM(room, storey),
     2,
@@ -56,7 +54,7 @@ export function hIM(room: Room, storey?: Storey): number {
 
 /** Raumvolumen V_i [m³]. */
 export function vIM3(room: Room, storey?: Storey): number {
-  return pythonRound(aFloorM2(room) * hIM(room, storey), 2)
+  return roundHalfEven(aFloorM2(room) * hIM(room, storey), 2)
 }
 
 /** Auslegungs-Innentemperatur θ_i [°C]; aus thetaIC oder Raumart. */
@@ -79,7 +77,7 @@ export function effectiveNMinH1(room: Room): number {
 /** Mindestaußenluftvolumenstrom q_V,min,i [m³/h] (EN 12831-1 Gl. 33). */
 export function qVMinM3h(room: Room, storey?: Storey): number {
   if (room.qVEnvMinM3h !== null) return room.qVEnvMinM3h
-  return pythonRound(vIM3(room, storey) * effectiveNMinH1(room), 1)
+  return roundHalfEven(vIM3(room, storey) * effectiveNMinH1(room), 1)
 }
 
 /** FB-Bauteil mit Geschoss-Defaults (Storey.make_fb). */
@@ -155,7 +153,7 @@ export function effectiveComponents(
 
 /** korrigierter U-Wert U_cequiv,k = U_k + ΔU_TB,k. */
 export function uCorrected(comp: BuildingComponent): number {
-  return pythonRound(comp.uValue + comp.deltaUTb, 2)
+  return roundHalfEven(comp.uValue + comp.deltaUTb, 2)
 }
 
 /** Effektiver f_ix: expliziter Wert, sonst 0 (intern) bzw. 1 (extern). */

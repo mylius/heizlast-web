@@ -1,7 +1,7 @@
 /**
  * Druckoptimierter Bericht (RAUMHEIZLAST DIN EN 12831): gleiche Struktur wie
- * der Markdown-/Python-Bericht, als semantisches HTML. "PDF erstellen"
- * nutzt den Browser-Druckdialog (print.css: A4, Seitenumbruch je Raum).
+ * der Markdown-Bericht, als semantisches HTML. "PDF erstellen" nutzt den
+ * Browser-Druckdialog (print.css: A4, Seitenumbruch je Raum).
  */
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, FileDown, FileSpreadsheet, FileText, Printer } from "lucide-react"
@@ -270,8 +270,7 @@ export function ReportPage() {
 
         <footer className="pt-4 text-xs text-muted-foreground print:text-[9px]">
           Erstellt mit heizlast-web — Heizlastberechnung nach DIN EN 12831
-          (Transmissions- und Lüftungswärmeverluste, Verfahren wie
-          heizlastrechner-CLI).
+          (Transmissions- und Lüftungswärmeverluste).
         </footer>
       </article>
     </div>

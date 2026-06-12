@@ -5,8 +5,8 @@
  * - Standard-Lüftungswärmeverlust: Φ_V = q_V · ρc_p · (θ_i − θ_supply)
  * - Normheizlast = Σ Φ_T,stand,i + Σ Φ_V,stand,i (+ Aufheizzuschlag)
  *
- * Portierung von heizlastrechner/calc.py; Rundungsstellen identisch
- * (Φ_T,k wird pro Bauteil auf ganze Watt gerundet, dann summiert).
+ * Rundung wie im RAUMHEIZLAST-Formular: Φ_T,k wird pro Bauteil auf ganze
+ * Watt gerundet, dann summiert.
  */
 import {
   effectiveComponents,
@@ -17,7 +17,7 @@ import {
   thetaDesignC,
   uCorrected,
 } from "./derive"
-import { pythonRound } from "./round"
+import { roundHalfEven } from "./round"
 import type {
   BuildingComponent,
   CalculationParams,
@@ -69,13 +69,13 @@ export function getEffectiveComponentAreas(
   if (comp.bruttoM2 > 0) {
     brutto = comp.bruttoM2
   } else if (comp.orientation !== "H" && comp.widthM > 0) {
-    // Falsy-Semantik wie in Python: lengthHeightM 0 UND null fallen auf Raumhöhe zurück
+    // lengthHeightM 0 UND null fallen beide auf die Raumhöhe zurück
     const lh = comp.lengthHeightM
       ? comp.lengthHeightM
       : effectiveStoreyHeightM(room, storey)
-    brutto = pythonRound(comp.widthM * lh, 2)
+    brutto = roundHalfEven(comp.widthM * lh, 2)
   } else if (comp.orientation === "H" && comp.widthM > 0 && comp.lengthHeightM) {
-    brutto = pythonRound(comp.widthM * comp.lengthHeightM, 2)
+    brutto = roundHalfEven(comp.widthM * comp.lengthHeightM, 2)
   } else {
     brutto = 0.0
   }
@@ -88,7 +88,7 @@ export function getEffectiveComponentAreas(
   } else {
     abzug = comp.abzugM2
   }
-  const aK = Math.max(0.0, pythonRound(brutto - abzug, 2))
+  const aK = Math.max(0.0, roundHalfEven(brutto - abzug, 2))
   return [brutto, abzug, aK]
 }
 
@@ -111,7 +111,7 @@ export function computeComponentTransmission(
     aKM2: aK,
     fIx,
     uCorrected: u,
-    phiTKW: pythonRound(phi, 0),
+    phiTKW: roundHalfEven(phi, 0),
     effectiveOrientation: null,
     fromStorey: false,
     isOpening: false,
@@ -144,7 +144,7 @@ export function computeRoomTransmission(
     }
   }
   const total = results.reduce((sum, r) => sum + r.phiTKW, 0)
-  return [results, pythonRound(total, 0)]
+  return [results, roundHalfEven(total, 0)]
 }
 
 /**
@@ -162,7 +162,7 @@ export function computeRoomVentilationLoss(
   const thetaSup = thetaSupplyC ?? params.thetaEC
   const deltaTheta = thetaDesignC(room) - thetaSup
   const phiV = q * params.rhoCpAirWhM3k * deltaTheta
-  return pythonRound(Math.max(0.0, phiV), 0)
+  return roundHalfEven(Math.max(0.0, phiV), 0)
 }
 
 /** Vollständige Raumheizlast: Transmission, Lüftung, Normheizlast. */
@@ -179,7 +179,7 @@ export function computeRoomHeatingLoad(
     componentResults: compResults,
     phiTStandW: phiT,
     phiVStandW: phiV,
-    phiHlW: pythonRound(phiHl, 0),
+    phiHlW: roundHalfEven(phiHl, 0),
     qVMinM3h: qVMinM3h(room, storey),
   }
 }
@@ -191,7 +191,7 @@ export function computeUsageUnitTotals(
   const phiT = roomResults.reduce((s, r) => s + r.phiTStandW, 0)
   const phiV = roomResults.reduce((s, r) => s + r.phiVStandW, 0)
   const phiHl = phiT + phiV
-  return [pythonRound(phiT, 0), pythonRound(phiV, 0), pythonRound(phiHl, 0)]
+  return [roundHalfEven(phiT, 0), roundHalfEven(phiV, 0), roundHalfEven(phiHl, 0)]
 }
 
 export interface UnitResult {

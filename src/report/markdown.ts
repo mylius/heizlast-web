@@ -1,8 +1,8 @@
 /**
  * Markdown-Bericht (RAUMHEIZLAST DIN EN 12831).
  *
- * Zeilengenaue Portierung von heizlastrechner/adapters/exporters/markdown.py —
- * wird per Golden-File-Test gegen die Python-Ausgabe verifiziert.
+ * Layout entspricht dem klassischen RAUMHEIZLAST-Formular — wird per
+ * Golden-File-Test gegen die Referenzausgabe verifiziert.
  */
 import {
   computeRoomHeatingLoad,

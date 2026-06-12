@@ -1,5 +1,5 @@
 /**
- * Projektdatei speichern/öffnen (JSON, kompatibel zum Python-CLI).
+ * Projektdatei speichern/öffnen (JSON).
  */
 import { toast } from "sonner"
 import * as z from "zod"

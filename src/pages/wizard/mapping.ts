@@ -1,7 +1,6 @@
 /**
- * Übersetzt die Assistent-Antworten in das vollständige Projektmodell.
- * Gleiche Konstruktionsmuster wie examples/default.py: Wände als Presets mit
- * Fenster-Öffnungen, FB/DE über Geschoss-Defaults.
+ * Übersetzt die Assistent-Antworten in das vollständige Projektmodell:
+ * Wände als Presets mit Fenster-Öffnungen, FB/DE über Geschoss-Defaults.
  */
 import {
   ERA_PRESET_MAP,

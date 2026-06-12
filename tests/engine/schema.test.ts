@@ -1,5 +1,5 @@
 /**
- * Round-Trip-Tests für das Python-kompatible JSON-Format:
+ * Round-Trip-Tests für das JSON-Projektformat:
  * serialize → parse muss identische Berechnungsergebnisse liefern.
  */
 import { readFileSync } from "node:fs"
@@ -59,7 +59,7 @@ describe("JSON-Schema Round-Trip", () => {
               roomLengthM: 5,
               roomType: "Wohnraum" as const,
               storeyId: "EG",
-              // eigene Höhe → Python-Parser würde Geschoss lösen
+              // eigene Höhe → Format-Parser würde das Geschoss lösen
               storeyHeightM: 3.0,
             }),
           ],

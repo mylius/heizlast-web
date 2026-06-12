@@ -1,15 +1,15 @@
 /**
- * CPython-kompatibles round(): korrekt gerundet auf Dezimalstellen mit
- * "round half to even" auf dem exakten Binärwert des Doubles.
+ * Kaufmännisch korrektes Runden auf Dezimalstellen mit "round half to even"
+ * (Banker's Rounding) auf dem exakten Binärwert des Doubles.
  *
- * Math.round / toFixed verhalten sich anders (half-up bzw. half-away-from-zero);
- * für die Paritätstests gegen die Python-Referenz muss exakt das
- * CPython-Verhalten nachgebildet werden (z.B. round(2.675, 2) === 2.67).
+ * Math.round / toFixed verhalten sich anders (half-up bzw. half-away-from-zero)
+ * und würden bei Werten wie 2.675 (binär 2.67499…) abweichen — die
+ * Referenz-Fixtures verlangen z.B. round(2.675, 2) === 2.67.
  */
-export function pythonRound(x: number, ndigits = 0): number {
+export function roundHalfEven(x: number, ndigits = 0): number {
   if (!Number.isFinite(x)) return x
   if (!Number.isInteger(ndigits) || ndigits < 0 || ndigits > 50) {
-    throw new RangeError(`pythonRound: ndigits ${ndigits} nicht unterstützt`)
+    throw new RangeError(`roundHalfEven: ndigits ${ndigits} nicht unterstützt`)
   }
   if (x === 0) return x
 

@@ -1,8 +1,7 @@
 /**
  * Zahlformatierung für Berichte: deutsche Dezimalkommas, "-" für leere Werte.
- * Portierung von _fmt aus heizlastrechner/adapters/exporters/markdown.py.
  */
-import { pythonRound } from "@/engine/round"
+import { roundHalfEven } from "@/engine/round"
 
 export function fmt(
   x: number | null | undefined,
@@ -10,11 +9,11 @@ export function fmt(
   empty = "-",
 ): string {
   if (x === null || x === undefined) return empty
-  if (decimals === 0) return String(Math.trunc(pythonRound(x, 0)))
-  return pythonRound(x, decimals).toFixed(decimals).replace(".", ",")
+  if (decimals === 0) return String(Math.trunc(roundHalfEven(x, 0)))
+  return roundHalfEven(x, decimals).toFixed(decimals).replace(".", ",")
 }
 
-/** Ganzzahl-Darstellung wie Pythons int() (Truncation Richtung 0). */
+/** Ganzzahl-Darstellung (Truncation Richtung 0). */
 export function fmtInt(x: number): string {
   return String(Math.trunc(x))
 }

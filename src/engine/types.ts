@@ -1,9 +1,9 @@
 /**
- * Datenmodell für die Heizlastberechnung nach DIN EN 12831.
+ * Datenmodell für die Heizlastberechnung nach DIN EN 12831,
+ * angelehnt an das offizielle RAUMHEIZLAST-Formular.
  *
- * Direkte Portierung von heizlastrechner/model.py (Python). Alle Strukturen
- * sind reine, serialisierbare Daten; Raum→Geschoss ist über `storeyId`
- * referenziert statt über Objektreferenzen.
+ * Alle Strukturen sind reine, serialisierbare Daten; Raum→Geschoss ist über
+ * `storeyId` referenziert statt über Objektreferenzen.
  */
 
 export type Orientation = "N" | "S" | "E" | "W" | "O" | "H"

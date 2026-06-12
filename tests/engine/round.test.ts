@@ -3,7 +3,7 @@ import { join } from "node:path"
 
 import { describe, expect, it } from "vitest"
 
-import { pythonRound } from "@/engine/round"
+import { roundHalfEven } from "@/engine/round"
 
 interface RoundingCase {
   x: string
@@ -15,13 +15,13 @@ const cases: RoundingCase[] = JSON.parse(
   readFileSync(join(__dirname, "../fixtures/rounding_cases.json"), "utf-8"),
 )
 
-describe("pythonRound", () => {
-  it(`stimmt mit CPython round() überein (${cases.length} Fälle aus der Referenzberechnung)`, () => {
+describe("roundHalfEven", () => {
+  it(`stimmt mit den Referenz-Rundungsfällen überein (${cases.length} Fälle)`, () => {
     const failures: string[] = []
     for (const c of cases) {
       const x = Number(c.x)
       const expected = Number(c.expected)
-      const actual = pythonRound(x, c.ndigits)
+      const actual = roundHalfEven(x, c.ndigits)
       if (!Object.is(actual, expected)) {
         failures.push(
           `round(${c.x}, ${c.ndigits}): erwartet ${c.expected}, erhalten ${actual}`,
@@ -32,11 +32,11 @@ describe("pythonRound", () => {
   })
 
   it("klassische Banker's-Rounding-Fälle", () => {
-    expect(pythonRound(0.5, 0)).toBe(0)
-    expect(pythonRound(1.5, 0)).toBe(2)
-    expect(pythonRound(2.5, 0)).toBe(2)
-    expect(pythonRound(2.675, 2)).toBe(2.67) // 2.675 ist binär 2.67499…
-    expect(pythonRound(0.125, 2)).toBe(0.12) // exakte Hälfte → gerade
-    expect(pythonRound(-1.5, 0)).toBe(-2)
+    expect(roundHalfEven(0.5, 0)).toBe(0)
+    expect(roundHalfEven(1.5, 0)).toBe(2)
+    expect(roundHalfEven(2.5, 0)).toBe(2)
+    expect(roundHalfEven(2.675, 2)).toBe(2.67) // 2.675 ist binär 2.67499…
+    expect(roundHalfEven(0.125, 2)).toBe(0.12) // exakte Hälfte → gerade
+    expect(roundHalfEven(-1.5, 0)).toBe(-2)
   })
 })

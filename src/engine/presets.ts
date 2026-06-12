@@ -1,10 +1,6 @@
 /**
  * Bauteil-Vorlagen (Presets) mit typischen U-Werten nach Baualtersklasse.
- *
- * Portierung von heizlastrechner/components.py als Datenkatalog. Jedes Preset
- * trägt einen Namen und einen Hinweis, wann es angemessen ist. Die mit
- * `extension: true` markierten Presets existieren nur in der Web-App
- * (Erweiterung gegenüber dem Python-Skript).
+ * Jedes Preset trägt einen Namen und einen Hinweis, wann es angemessen ist.
  */
 import {
   DEFAULT_THETA_E_C,
@@ -38,7 +34,7 @@ export interface ComponentPreset {
   adjacent: AdjacentType
   thetaAdjacentC: number
   fIx: number | null
-  /** Nur in der Web-App, nicht im Python-Skript vorhanden */
+  /** Ergänzung gegenüber dem ursprünglichen Preset-Katalog */
   extension?: boolean
 }
 

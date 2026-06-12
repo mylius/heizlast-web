@@ -1,8 +1,7 @@
 /**
- * Eingebautes Beispielprojekt: Wohneinheit 1 mit allen Räumen (DG, OG1, EG).
- *
- * Portierung von heizlastrechner/examples/default.py — dient als Demo-Projekt
- * und als Eingabe der Paritätstests gegen die Python-Referenz.
+ * Eingebautes Beispielprojekt: Wohneinheit 1 mit allen Räumen (DG, OG1, EG)
+ * einer Doppelhaushälfte — dient als Demo-Projekt und als Eingabe der
+ * Paritätstests gegen die Referenz-Fixtures.
  */
 import { buildFromPreset, presetById } from "./presets"
 import {

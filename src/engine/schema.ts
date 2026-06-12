@@ -1,7 +1,7 @@
 /**
- * JSON-Projektformat, kompatibel zum Python-CLI (heizlastrechner project.json).
+ * JSON-Projektformat (Wire-Format, snake_case).
  *
- * Der Parser repliziert die Eigenheiten von heizlastrechner/app/cli_core.py:
+ * Regeln des Formats:
  * - Geschoss wird nur angehängt, wenn der Raum kein eigenes storey_height_m hat
  *   und floor einer Geschoss-ID entspricht
  * - room_type fällt auf den Raumnamen zurück
@@ -9,11 +9,11 @@
  *   grenzt an "e" erzwungen)
  * - length_height_m: null → 0 (in der Berechnung gleichwertig)
  *
- * Der Serializer schreibt nur Geschoss-Felder, die der Python-Parser liest;
+ * Der Serializer schreibt nur Geschoss-Felder, die das Format definiert;
  * Geschosse mit nicht abbildbaren Einstellungen (addDefault* = false,
  * abweichende de/fb-Adjacency, deFIx) werden aufgelöst: betroffene Räume
  * erhalten explizite Höhe/Deckendicke und materialisierte DE/FB-Bauteile,
- * damit die Datei im Python-CLI identisch rechnet.
+ * damit die Datei in jedem formatkonformen Rechner identisch rechnet.
  */
 import * as z from "zod"
 
@@ -130,7 +130,7 @@ function parseComponent(c: ComponentWire): BuildingComponent {
     componentType: c.component_type as BuildingComponent["componentType"],
     label: c.label ?? "",
     widthM: c.width_m ?? 0,
-    // Python: None → 0.0 (in Berechnung und Anzeige gleichwertig)
+    // null → 0 (in Berechnung und Anzeige gleichwertig)
     lengthHeightM: c.length_height_m ?? 0,
     bruttoM2: c.brutto_m2 ?? 0,
     abzugM2: c.abzug_m2 ?? 0,
@@ -198,10 +198,10 @@ export function parseProjectJson(data: unknown): Project {
 // ---------------------------------------------------------------------------
 
 /**
- * Geschoss ist genau dann im Python-JSON-Format abbildbar, wenn nur Felder
- * abweichen, die der Python-Parser auch liest.
+ * Geschoss ist genau dann im Wire-Format abbildbar, wenn nur Felder
+ * abweichen, die das Format auch kennt.
  */
-function isStoreyPythonRepresentable(s: Storey): boolean {
+function isStoreyWireRepresentable(s: Storey): boolean {
   return (
     s.fbAdjacent === "e" &&
     s.deAdjacent === "ij" &&
@@ -259,7 +259,7 @@ function serializeRoom(
   if (r.roomType !== null) out.room_type = r.roomType
   let components = r.components
   if (materialize && storey !== undefined) {
-    // Geschoss nicht Python-abbildbar: Raum vom Geschoss lösen und
+    // Geschoss nicht im Wire-Format abbildbar: Raum vom Geschoss lösen und
     // effektive DE/FB-Bauteile explizit ausschreiben
     out.storey_height_m = r.storeyHeightM ?? storey.storeyHeightM
     out.ceiling_thickness_m = r.ceilingThicknessM ?? storey.ceilingThicknessM
@@ -269,7 +269,7 @@ function serializeRoom(
       out.storey_height_m = r.storeyHeightM
     } else if (r.storeyId === null && project.storeys[r.floor] !== undefined) {
       // Raum ist bewusst vom Geschoss gelöst, floor kollidiert aber mit einer
-      // Geschoss-ID: explizite Höhe schreiben, sonst würde der Python-Parser
+      // Geschoss-ID: explizite Höhe schreiben, sonst würde ein Format-Parser
       // das Geschoss wieder anhängen
       out.storey_height_m = 0
     }
@@ -286,9 +286,9 @@ function serializeRoom(
 }
 
 /**
- * Projekt als Python-CLI-kompatibles JSON serialisieren.
+ * Projekt als Wire-Format-JSON serialisieren.
  * `thetaEC` wird als zusätzlicher Top-Level-Schlüssel mitgeschrieben
- * (vom Python-Parser ignoriert, von der Web-App beim Laden gelesen).
+ * (von älteren Format-Parsern ignoriert, von der Web-App beim Laden gelesen).
  */
 export function serializeProjectJson(
   project: Project,
@@ -296,7 +296,7 @@ export function serializeProjectJson(
 ): ProjectWire {
   const materializeStoreyIds = new Set(
     Object.values(project.storeys)
-      .filter((s) => !isStoreyPythonRepresentable(s))
+      .filter((s) => !isStoreyWireRepresentable(s))
       .map((s) => s.id),
   )
   const out: Record<string, unknown> = {
@@ -325,7 +325,7 @@ export function serializeProjectJson(
       serializeRoom(
         r,
         project,
-        // Materialisieren auch bei eigener Geschosshöhe: der Python-Parser
+        // Materialisieren auch bei eigener Geschosshöhe: ein Format-Parser
         // löst solche Räume vom Geschoss und würde DE/FB-Injektion verlieren
         r.storeyId !== null &&
           (materializeStoreyIds.has(r.storeyId) || r.storeyHeightM !== null),
