@@ -25,7 +25,6 @@ import { saveFile, saveTextFile } from "@/lib/download"
 import { saveProjectFile } from "@/lib/projectFile"
 import { buildReportMd } from "@/report/markdown"
 import { fmt } from "@/report/format"
-import { buildXlsx } from "@/report/xlsx"
 import { useProjectStore } from "@/store/projectStore"
 import { useProjectResults } from "@/store/selectors"
 
@@ -55,6 +54,8 @@ export function ReportPage() {
   }
 
   const exportXlsx = async () => {
+    // exceljs ist groß → erst beim Export laden
+    const { buildXlsx } = await import("@/report/xlsx")
     const blob = await buildXlsx(project, params)
     await saveFile(
       blob,

@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# heizlast-web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Heizlastberechnung nach **DIN EN 12831** als reine Browser-Anwendung — kein
+Backend, alle Daten bleiben lokal (localStorage bzw. Projektdateien).
 
-Currently, two official plugins are available:
+Zwei Modi:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Geführter Assistent** für Hausbesitzer: Schritt für Schritt Gebäude,
+  Standort (Norm-Außentemperatur per PLZ), Geschosse und Räume erfassen — mit
+  Bauteil-Vorlagen nach Baualtersklasse („Altbau vor 1977", „WSchVO 1977",
+  „Modern EnEV/GEG", „Passivhaus") und verständlichen Hinweisen.
+- **Profi-Modus** für Energieberater: alle Felder des RAUMHEIZLAST-Formulars
+  direkt editierbar (f_ix, ΔU_TB, θ_angrenzend, q_V-Überschreibungen,
+  Aufheizzuschlag, Geschoss-Defaults für FB/DE) mit Live-Neuberechnung.
 
-## React Compiler
+Exporte: **PDF** (druckoptimierter Bericht, Seitenumbruch je Raum),
+**Markdown**, **Excel (XLSX)** und **Projektdatei (JSON)**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Beziehung zum Python-Projekt `heizlastrechner`
 
-## Expanding the ESLint configuration
+Die Berechnungs-Engine ist eine 1:1-Portierung von
+[`heizlastrechner`](../heizlastrechner) (Python) nach TypeScript:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Identische Ergebnisse**: Paritätstests vergleichen jede Bauteilzeile der
+  Beispielprojekte exakt mit von Python generierten Fixtures — inklusive
+  CPython-Rundungsverhalten (Banker's Rounding auf dem exakten Binärwert,
+  `src/engine/round.ts`).
+- **Identischer Markdown-Bericht**: Golden-File-Test gegen die
+  Python-Ausgabe (byte-gleich).
+- **Kompatible Projektdateien**: gespeicherte `.json`-Projekte rechnen im
+  Python-CLI mit identischen Summen (`uv run heizlastrechner projekt.json`).
+  Geschoss-Einstellungen, die das Python-JSON-Format nicht kennt, werden beim
+  Export automatisch in explizite Raum-Bauteile aufgelöst.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Fixtures neu erzeugen (nach Änderungen am Python-Referenzprojekt):
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+cd ../heizlastrechner
+uv run python ../heizlast-web/scripts/gen-fixtures.py
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Entwicklung
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+bun install
+bun run dev        # Dev-Server
+bun run test       # vitest (Paritäts-, Schema-, Komponententests)
+bun run build      # Produktions-Build (statisch, dist/)
 ```
+
+Stack: Bun · Vite · React · TypeScript · Tailwind CSS v4 · shadcn/ui ·
+zustand · zod · exceljs (lazy geladen).
+
+Hinweis: Die Scripts nutzen `bunx --bun`, damit Vite/Vitest unter der
+Bun-Runtime laufen (vermeidet rolldown-Binding-Konflikte, wenn Node eine
+andere CPU-Architektur hat als Bun).
+
+## Fachliche Hinweise
+
+- Abgedeckt: Transmissions- und Lüftungswärmeverluste nach EN 12831-1
+  (Mindestluftwechsel nach Raumart, Temperaturkorrekturfaktoren,
+  Wärmebrückenzuschläge, Aufheizzuschlag, Nutzungseinheiten-Summen).
+- Vereinfacht: erdreichberührte Bodenplatten (kein B′-Verfahren),
+  Infiltration nicht separat von der Mindestlüftung, keine
+  Verteilverluste (EN 12831-2).
+- Die Norm-Außentemperaturen (`src/data/normaussentemperatur.json`) folgen
+  den klassischen 2-K-Klimazonen je PLZ-Region; für verbindliche
+  Berechnungen den ortsgenauen Wert der DIN/TS 12831-1 eintragen (das Feld
+  ist immer manuell überschreibbar).
