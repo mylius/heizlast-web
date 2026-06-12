@@ -5,6 +5,9 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Für GitHub Pages (https://<user>.github.io/heizlast-web/) setzt der
+  // Deploy-Workflow DEPLOY_BASE=/heizlast-web/
+  base: process.env.DEPLOY_BASE ?? "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
