@@ -98,17 +98,17 @@ export function ReportPage() {
         </div>
       </div>
 
-      <article className="report space-y-6 text-sm">
+      <article className="report space-y-6 text-sm print:space-y-4 print:text-[10px] print:leading-snug">
         <section className="report-cover flex min-h-[60vh] flex-col rounded-lg border p-8 print:min-h-[calc(100vh-30mm)] print:rounded-none print:border-none print:p-0">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">
               Heizlastberechnung nach DIN EN 12831
             </p>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl font-bold tracking-tight print:text-2xl">
               {project.projectId || project.description || "Heizlastberechnung"}
             </h1>
             {project.description && project.projectId && (
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-muted-foreground print:text-sm">
                 {project.description}
               </p>
             )}
@@ -125,7 +125,7 @@ export function ReportPage() {
             <dt className="text-muted-foreground">Räume</dt>
             <dd>{allRoomResults.length}</dd>
             <dt className="text-muted-foreground">Normheizlast gesamt</dt>
-            <dd className="text-xl font-bold">
+            <dd className="text-xl font-bold print:text-base">
               {Math.trunc(results.totalPhiHlW)} W
             </dd>
           </dl>
@@ -151,7 +151,9 @@ export function ReportPage() {
         </section>
 
         <header className="print-page-break">
-          <h1 className="text-2xl font-bold">RAUMHEIZLAST DIN EN 12831</h1>
+          <h1 className="text-2xl font-bold print:text-lg">
+            RAUMHEIZLAST DIN EN 12831
+          </h1>
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5">
             <dt className="font-semibold">Projekt:</dt>
             <dd>

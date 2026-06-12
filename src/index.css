@@ -180,11 +180,22 @@
     }
 
     .report-table {
-        font-size: 9px;
+        font-size: 8.5px;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 0.15rem 0.3rem;
     }
 
     .report-table thead {
         display: table-header-group;
+    }
+
+    /* Druck-Typografie: berichtsübliche Größen statt Bildschirmgrößen */
+    .report .report-h2 {
+        font-size: 12.5px;
+        margin-bottom: 0.25rem;
     }
 }
 
