@@ -5,6 +5,7 @@
 import { describe, expect, it } from "vitest"
 
 import { computeProject } from "@/engine/calc"
+import { exampleWizardState } from "@/pages/wizard/example"
 import { buildProjectFromWizard } from "@/pages/wizard/mapping"
 import { initialWizardState } from "@/pages/wizard/types"
 
@@ -89,5 +90,14 @@ describe("buildProjectFromWizard", () => {
     const wall = flur.components.find((c) => c.componentType === "AW")!
     expect(wall.openings.map((o) => o.componentType)).toEqual(["AT"])
     expect(wall.openings[0].bruttoM2).toBe(2.2)
+  })
+
+  it("Demo-Assistent enthält Räume und lässt sich in ein Projekt übersetzen", () => {
+    const wizard = exampleWizardState()
+    const project = buildProjectFromWizard(wizard)
+
+    expect(wizard.rooms.length).toBeGreaterThan(0)
+    expect(project.projectId).toBe("ID_115986")
+    expect(project.usageUnits[0].rooms).toHaveLength(wizard.rooms.length)
   })
 })

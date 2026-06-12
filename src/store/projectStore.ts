@@ -17,6 +17,7 @@ import type {
 } from "@/engine/types"
 import { defaultParams, makeRoom, makeStorey } from "@/engine/types"
 import type { WizardState } from "@/pages/wizard/types"
+import { exampleWizardState } from "@/pages/wizard/example"
 import { initialWizardState } from "@/pages/wizard/types"
 
 export interface RoomPath {
@@ -125,6 +126,8 @@ export const useProjectStore = create<AppState>()(
       resetToDemo: () =>
         set((s) => {
           s.project = getExampleProject()
+          s.params = defaultParams()
+          s.wizard = exampleWizardState()
           s.hasSession = true
         }),
       newEmptyProject: () =>

@@ -107,10 +107,19 @@ export function StartPage() {
           variant="outline"
           onClick={() => {
             resetToDemo()
+            navigate("/assistent")
+          }}
+        >
+          Demo im Assistenten öffnen
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            resetToDemo()
             navigate("/profi")
           }}
         >
-          Demo-Projekt laden
+          Demo im Profi-Modus öffnen
         </Button>
         <Button
           variant="ghost"
