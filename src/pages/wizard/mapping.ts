@@ -12,6 +12,7 @@ import {
   makeRoom,
   makeStorey,
   type BuildingComponent,
+  type CalculationParams,
   type ComponentType,
   type Project,
   type Room,
@@ -259,5 +260,25 @@ export function buildProjectFromWizard(wizard: WizardState): Project {
     address: wizard.address,
     storeys,
     usageUnits: [{ number: 1, name: "Wohneinheit 1", rooms }],
+  }
+}
+
+/** Typische Luftdichtheit n₅₀ [1/h] nach Baualtersklasse. */
+const N50_BY_ERA: Record<WizardState["era"], number> = {
+  altbau: 6,
+  wschvo77: 4,
+  modern: 3,
+  passivhaus: 0.6,
+}
+
+/** Berechnungsparameter aus den Assistent-Antworten ableiten. */
+export function paramsFromWizard(wizard: WizardState): CalculationParams {
+  return {
+    thetaEC: wizard.thetaEC,
+    rhoCpAirWhM3k: 0.34,
+    n50: N50_BY_ERA[wizard.era],
+    epsilon: 1.0,
+    withWrg: wizard.hasMvhr,
+    wrgEta: 0.8,
   }
 }

@@ -488,6 +488,12 @@ function RoomSection({
           Mindestaußenluftvolumenstrom q<sub>V,min,i</sub>:{" "}
           <strong>{fmt(result.qVMinM3h, 1)} m³/h</strong>
         </li>
+        {result.qVInfM3h > 0 && (
+          <li>
+            Infiltration q<sub>V,inf,i</sub> (n₅₀-basiert):{" "}
+            <strong>{fmt(result.qVInfM3h, 1)} m³/h</strong>
+          </li>
+        )}
         <li>
           Lüftungswärmeverlust Φ<sub>V,stand,i</sub>:{" "}
           <strong>{Math.trunc(result.phiVStandW)} W</strong>

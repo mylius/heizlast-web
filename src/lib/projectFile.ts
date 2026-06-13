@@ -4,7 +4,11 @@
 import { toast } from "sonner"
 import * as z from "zod"
 
-import { parseProjectJson, serializeProjectJson } from "@/engine/schema"
+import {
+  parseProjectJson,
+  readParamsFromWire,
+  serializeProjectJson,
+} from "@/engine/schema"
 import type { CalculationParams, Project } from "@/engine/types"
 import { useProjectStore } from "@/store/projectStore"
 
@@ -14,7 +18,7 @@ export async function saveProjectFile(
   project: Project,
   params: CalculationParams,
 ): Promise<void> {
-  const wire = serializeProjectJson(project, params.thetaEC)
+  const wire = serializeProjectJson(project, params)
   const name = (project.projectId || "heizlast-projekt").replace(/[^\w.-]+/g, "_")
   await saveTextFile(
     JSON.stringify(wire, null, 2) + "\n",
@@ -33,9 +37,7 @@ export async function openProjectFile(): Promise<boolean> {
     const data = JSON.parse(text)
     const project = parseProjectJson(data)
     useProjectStore.getState().setProject(project)
-    if (typeof data.theta_e_c === "number") {
-      useProjectStore.getState().setParams({ thetaEC: data.theta_e_c })
-    }
+    useProjectStore.getState().setParams(readParamsFromWire(data))
     toast.success(`Projekt „${project.projectId || project.description}“ geladen`)
     return true
   } catch (err) {

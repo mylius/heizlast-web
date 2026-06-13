@@ -61,6 +61,8 @@ export interface WizardState {
   era: Exclude<Era, "neutral">
   /** Fenster nachträglich getauscht? → AF modern trotz alter Hülle */
   windowsReplaced: boolean
+  /** Lüftungsanlage mit Wärmerückgewinnung (nur bei modern/passivhaus relevant) */
+  hasMvhr: boolean
   plzOrCity: string
   thetaEC: number
   /** vom Nutzer manuell überschrieben? */
@@ -79,6 +81,7 @@ export function initialWizardState(): WizardState {
     buildingKind: "efh",
     era: "altbau",
     windowsReplaced: false,
+    hasMvhr: false,
     plzOrCity: "",
     thetaEC: -10.3,
     thetaEManual: false,

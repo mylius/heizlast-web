@@ -21,12 +21,11 @@ import { aggregateHeatLoss } from "@/engine/breakdown"
 import { computeProject } from "@/engine/calc"
 import { aFloorM2 } from "@/engine/derive"
 import { validateProject } from "@/engine/validate"
-import type { CalculationParams } from "@/engine/types"
 import { de, deKw } from "@/lib/format"
 import { saveProjectFile } from "@/lib/projectFile"
 import { useProjectStore } from "@/store/projectStore"
 
-import { buildProjectFromWizard } from "../mapping"
+import { buildProjectFromWizard, paramsFromWizard } from "../mapping"
 
 export function ErgebnisStep() {
   const navigate = useNavigate()
@@ -36,10 +35,7 @@ export function ErgebnisStep() {
 
   const { project, params, results } = useMemo(() => {
     const project = buildProjectFromWizard(wizard)
-    const params: CalculationParams = {
-      thetaEC: wizard.thetaEC,
-      rhoCpAirWhM3k: 0.34,
-    }
+    const params = paramsFromWizard(wizard)
     return { project, params, results: computeProject(project, params) }
   }, [wizard])
 
@@ -51,7 +47,7 @@ export function ErgebnisStep() {
 
   const applyToStore = () => {
     setProject(project)
-    setParams({ thetaEC: wizard.thetaEC })
+    setParams(params)
   }
 
   return (

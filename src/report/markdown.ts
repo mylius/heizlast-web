@@ -99,9 +99,16 @@ function buildRoomVentilationSection(roomResult: RoomResult): string {
   const lines = [
     "**Lüftungswärmeverluste:**",
     `- Mindestaußenluftvolumenstrom $q_{V,min,i}$: **${fmt(qMin, 1)} m³/h**`,
+  ]
+  if (roomResult.qVInfM3h > 0) {
+    lines.push(
+      `- Infiltration $q_{V,inf,i}$ (n₅₀-basiert): **${fmt(roomResult.qVInfM3h, 1)} m³/h**`,
+    )
+  }
+  lines.push(
     `- Leckagen, ALD, Mindestwert $\\Phi_{V,env/min,i}$: **${fmtInt(roomResult.phiVStandW)} W**`,
     `- $\\Sigma \\Phi_{V,stand,i}$ = **${fmtInt(roomResult.phiVStandW)} W**`,
-  ]
+  )
   const aufheiz = room.heatingUpAllowanceW ?? 0.0
   if (aufheiz > 0) {
     lines.push("")

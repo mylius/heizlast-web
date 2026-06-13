@@ -36,6 +36,14 @@ export function RoomResultCard({ result }: { result: RoomResult }) {
           {de(result.qVMinM3h, 1)} m³/h
         </div>
       </div>
+      {result.qVInfM3h > 0 && (
+        <div className="text-sm">
+          <div className="text-xs text-muted-foreground">q_V,inf</div>
+          <div className="font-medium tabular-nums">
+            {de(result.qVInfM3h, 1)} m³/h
+          </div>
+        </div>
+      )}
       {specific !== null && (
         <Tooltip>
           <TooltipTrigger asChild>

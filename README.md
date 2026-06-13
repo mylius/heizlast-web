@@ -63,6 +63,11 @@ andere CPU-Architektur hat als Bun).
   Keller b = 0,5, unbeheizter Dachboden b = 0,9, Erdreich b ≈ 0,33.
 - Außenbauteil-Vorlagen enthalten den pauschalen Wärmebrückenzuschlag
   ΔU_TB = 0,10 W/(m²K) nach DIN/TS 12831-1.
+- **Lüftung:** maßgeblich ist max(hygienischer Mindestluftwechsel,
+  Infiltration). Die Infiltration V̇_inf = 2·V·n₅₀·e·ε berücksichtigt die
+  Luftdichtheit n₅₀ (Assistent: aus Baualtersklasse, Profi: editierbar) und
+  die Zahl der dem Wind ausgesetzten Fassaden. Lüftungsanlagen mit
+  Wärmerückgewinnung reduzieren den hygienisch zugeführten Anteil um η.
 - Dachgeschosse: Kniestock- und Firsthöhe ergeben die mittlere Raumhöhe —
   Volumen und Giebelwände (Trapezflächen) sind damit automatisch richtig.
 - Der Assistent fragt die **lichte Raumhöhe** ab (innen messbar); für
@@ -71,8 +76,7 @@ andere CPU-Architektur hat als Bun).
   automatisch „beheizt" (Decke = Fußboden des Geschosses darüber); nur die
   Unterseite des untersten und die Oberseite des obersten Geschosses werden
   abgefragt.
-- Vereinfacht: erdreichberührte Bodenplatten (kein B′-Verfahren),
-  Infiltration nicht separat von der Mindestlüftung, keine
+- Vereinfacht: erdreichberührte Bodenplatten (kein B′-Verfahren), keine
   Verteilverluste (EN 12831-2).
 - Die Norm-Außentemperaturen (`src/data/normaussentemperatur.json`) folgen
   den klassischen 2-K-Klimazonen je PLZ-Region; für verbindliche

@@ -143,12 +143,31 @@ export interface CalculationParams {
   thetaEC: number
   /** Luft: ρ·c_p [Wh/(m³K)] für Φ_V = q_V · ρc_p · Δθ */
   rhoCpAirWhM3k: number
+  /**
+   * Luftdichtheit n₅₀ [1/h] (Luftwechsel bei 50 Pa) für die
+   * Infiltrationsberechnung. null = Infiltration nicht berücksichtigt
+   * (dann gilt nur der hygienische Mindestluftwechsel).
+   */
+  n50?: number | null
+  /** Höhenkorrekturfaktor ε der Infiltration; Standard 1,0. */
+  epsilon?: number
+  /** Lüftungsanlage mit Wärmerückgewinnung vorhanden. */
+  withWrg?: boolean
+  /** Wärmerückgewinnungsgrad η (0…1). */
+  wrgEta?: number
 }
 
 export const DEFAULT_THETA_E_C = -10.3
 
 export function defaultParams(): CalculationParams {
-  return { thetaEC: DEFAULT_THETA_E_C, rhoCpAirWhM3k: 0.34 }
+  return {
+    thetaEC: DEFAULT_THETA_E_C,
+    rhoCpAirWhM3k: 0.34,
+    n50: null,
+    epsilon: 1.0,
+    withWrg: false,
+    wrgEta: 0.8,
+  }
 }
 
 export function makeComponent(

@@ -125,6 +125,25 @@ export function GebaeudeStep() {
           </span>
         </label>
       )}
+
+      {(wizard.era === "modern" || wizard.era === "passivhaus") && (
+        <label className="flex items-start gap-3 rounded-md border p-3">
+          <Switch
+            checked={wizard.hasMvhr}
+            onCheckedChange={(hasMvhr) => setWizard({ hasMvhr })}
+          />
+          <span className="space-y-0.5">
+            <span className="block text-sm font-medium">
+              Lüftungsanlage mit Wärmerückgewinnung
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Eine kontrollierte Wohnraumlüftung (KWL) mit Wärmerückgewinnung
+              gewinnt einen Großteil der Wärme aus der Abluft zurück und senkt
+              die Lüftungsverluste deutlich.
+            </span>
+          </span>
+        </label>
+      )}
     </div>
   )
 }

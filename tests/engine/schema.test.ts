@@ -17,7 +17,7 @@ describe("JSON-Schema Round-Trip", () => {
   it("Beispielprojekt: serialize → parse rechnet identisch", () => {
     const project = getExampleProject()
     const params = defaultParams()
-    const wire = serializeProjectJson(project, params.thetaEC)
+    const wire = serializeProjectJson(project, params)
     // über JSON-String, wie beim echten Speichern/Laden
     const reloaded = parseProjectJson(JSON.parse(JSON.stringify(wire)))
     expect(normalize(dumpResults(reloaded, params))).toEqual(
@@ -32,7 +32,7 @@ describe("JSON-Schema Round-Trip", () => {
       ),
     )
     const params = defaultParams()
-    const wire = serializeProjectJson(original, params.thetaEC)
+    const wire = serializeProjectJson(original, params)
     const reloaded = parseProjectJson(JSON.parse(JSON.stringify(wire)))
     expect(normalize(dumpResults(reloaded, params))).toEqual(
       normalize(dumpResults(original, params)),
@@ -67,7 +67,7 @@ describe("JSON-Schema Round-Trip", () => {
       ],
     }
     const params = defaultParams()
-    const wire = serializeProjectJson(project, params.thetaEC)
+    const wire = serializeProjectJson(project, params)
     const reloaded = parseProjectJson(JSON.parse(JSON.stringify(wire)))
     expect(normalize(dumpResults(reloaded, params))).toEqual(
       normalize(dumpResults(project, params)),
@@ -77,6 +77,20 @@ describe("JSON-Schema Round-Trip", () => {
     expect(
       roomWire.components!.map((c) => c.component_type).sort(),
     ).toEqual(["DE", "FB"])
+  })
+
+  it("Dichtheit/WRG-Parameter überstehen serialize → readParamsFromWire", async () => {
+    const { readParamsFromWire } = await import("@/engine/schema")
+    const project = getExampleProject()
+    const params = { ...defaultParams(), n50: 6, withWrg: true, wrgEta: 0.75 }
+    const wire = JSON.parse(
+      JSON.stringify(serializeProjectJson(project, params)),
+    )
+    const reloaded = readParamsFromWire(wire)
+    expect(reloaded.n50).toBe(6)
+    expect(reloaded.withWrg).toBe(true)
+    expect(reloaded.wrgEta).toBe(0.75)
+    expect(reloaded.thetaEC).toBe(params.thetaEC)
   })
 
   it("ungültige Daten werfen einen Fehler", () => {

@@ -96,6 +96,62 @@ export function BuildingEditor() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Dichtheit & Lüftung</CardTitle>
+          <CardDescription>
+            Infiltration durch Undichtheiten (n₅₀) wird nach DIN EN 12831-1 mit
+            dem hygienischen Mindestluftwechsel verglichen — maßgeblich ist der
+            größere Wert. Ohne n₅₀ wird nur die Mindestlüftung angesetzt.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">
+                Luftdichtheit n₅₀ (1/h)
+              </Label>
+              <NumberField
+                value={params.n50 ?? null}
+                onCommit={(v) => store.setParams({ n50: v })}
+                nullable
+                placeholder="aus"
+              />
+              <p className="text-[10px] leading-tight text-muted-foreground/70">
+                z.B. Altbau ≈ 6, saniert ≈ 3, Passivhaus ≤ 0,6
+              </p>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">
+                Höhenkorrektur ε
+              </Label>
+              <NumberField
+                value={params.epsilon ?? 1.0}
+                onCommit={(v) => store.setParams({ epsilon: v ?? 1.0 })}
+              />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <Switch
+              checked={params.withWrg ?? false}
+              onCheckedChange={(withWrg) => store.setParams({ withWrg })}
+            />
+            Lüftungsanlage mit Wärmerückgewinnung
+          </label>
+          {params.withWrg && (
+            <div className="max-w-48 space-y-1">
+              <Label className="text-xs text-muted-foreground">
+                Wärmerückgewinnungsgrad η (0…1)
+              </Label>
+              <NumberField
+                value={params.wrgEta ?? 0.8}
+                onCommit={(v) => store.setParams({ wrgEta: v ?? 0.8 })}
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Geschosse</CardTitle>
           <CardDescription>
             Geschosse liefern Höhe, Deckendicke und Standard-Fußboden/Decke

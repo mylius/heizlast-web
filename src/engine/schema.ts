@@ -27,6 +27,7 @@ import {
   makeRoom,
   makeStorey,
   type BuildingComponent,
+  type CalculationParams,
   type Project,
   type Room,
   type Storey,
@@ -94,6 +95,10 @@ export const projectWireSchema = z.object({
   description: z.string().optional(),
   address: z.string().nullable().optional(),
   theta_e_c: z.number().optional(),
+  n50: z.number().nullable().optional(),
+  epsilon: z.number().optional(),
+  with_wrg: z.boolean().optional(),
+  wrg_eta: z.number().optional(),
   storeys: z.array(storeyWireSchema).optional(),
   usage_units: z
     .array(
@@ -162,6 +167,18 @@ function parseRoom(d: RoomWire, storeys: Record<string, Storey>): Room {
     heatingUpAllowanceW: d.heating_up_allowance_w ?? null,
     components: (d.components ?? []).map(parseComponent),
   })
+}
+
+/** Berechnungsparameter aus dem Wire-JSON lesen (θ_e, Dichtheit, WRG). */
+export function readParamsFromWire(data: unknown): Partial<CalculationParams> {
+  const wire = projectWireSchema.parse(data)
+  const params: Partial<CalculationParams> = {}
+  if (wire.theta_e_c !== undefined) params.thetaEC = wire.theta_e_c
+  if (wire.n50 !== undefined) params.n50 = wire.n50
+  if (wire.epsilon !== undefined) params.epsilon = wire.epsilon
+  if (wire.with_wrg !== undefined) params.withWrg = wire.with_wrg
+  if (wire.wrg_eta !== undefined) params.wrgEta = wire.wrg_eta
+  return params
 }
 
 /** Projekt aus Wire-JSON parsen. Wirft ZodError bei ungültigen Daten. */
@@ -292,7 +309,7 @@ function serializeRoom(
  */
 export function serializeProjectJson(
   project: Project,
-  thetaEC?: number,
+  params?: Partial<CalculationParams>,
 ): ProjectWire {
   const materializeStoreyIds = new Set(
     Object.values(project.storeys)
@@ -304,7 +321,14 @@ export function serializeProjectJson(
     description: project.description,
   }
   if (project.address) out.address = project.address
-  if (thetaEC !== undefined) out.theta_e_c = thetaEC
+  if (params?.thetaEC !== undefined) out.theta_e_c = params.thetaEC
+  if (params?.n50 !== undefined && params.n50 !== null) out.n50 = params.n50
+  if (params?.epsilon !== undefined && params.epsilon !== 1)
+    out.epsilon = params.epsilon
+  if (params?.withWrg) {
+    out.with_wrg = true
+    if (params.wrgEta !== undefined) out.wrg_eta = params.wrgEta
+  }
   const storeys = Object.values(project.storeys)
     .filter((s) => !materializeStoreyIds.has(s.id))
     .map((s) => ({

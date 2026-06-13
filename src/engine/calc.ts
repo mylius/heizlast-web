@@ -11,13 +11,16 @@
 import {
   effectiveComponents,
   effectiveFIx,
+  effectiveNMinH1,
   effectiveStoreyHeightM,
   qVMinM3h,
   storeyForRoom,
   thetaDesignC,
   uCorrected,
+  vIM3,
 } from "./derive"
 import { roundHalfEven } from "./round"
+import { infiltrationFlowM3h } from "./ventilation"
 import type {
   BuildingComponent,
   CalculationParams,
@@ -53,6 +56,8 @@ export interface RoomResult {
   /** Normheizlast Φ_HL,i [W] */
   phiHlW: number
   qVMinM3h: number
+  /** Infiltrationsvolumenstrom V̇_inf,i [m³/h] (0 wenn nicht berücksichtigt) */
+  qVInfM3h: number
 }
 
 /**
@@ -148,20 +153,40 @@ export function computeRoomTransmission(
 }
 
 /**
- * Standard-Lüftungswärmeverlust Φ_V,stand,i [W].
- * Ohne qVM3h wird q_V,min des Raums verwendet, ohne thetaSupplyC die Außenluft.
+ * Standard-Lüftungswärmeverlust Φ_V,stand,i [W] nach DIN EN 12831-1.
+ *
+ * - Expliziter q_V-Override am Raum: exakt verwenden (keine Infiltrationslogik).
+ * - Sonst: maßgeblicher Volumenstrom = max(V̇_min, V̇_inf) (hygienischer
+ *   Mindestluftwechsel gegen Infiltration durch Undichtheiten).
+ * - Mit Wärmerückgewinnung: nur der hygienisch über die Anlage zugeführte
+ *   Anteil (V̇_min − V̇_inf, ≥ 0) wird mit (1 − η) reduziert; Infiltration
+ *   kommt unverändert kalt herein.
  */
 export function computeRoomVentilationLoss(
   room: Room,
   params: CalculationParams,
-  qVM3h?: number,
-  thetaSupplyC?: number,
   storey?: Storey,
 ): number {
-  const q = qVM3h ?? qVMinM3h(room, storey)
-  const thetaSup = thetaSupplyC ?? params.thetaEC
-  const deltaTheta = thetaDesignC(room) - thetaSup
-  const phiV = q * params.rhoCpAirWhM3k * deltaTheta
+  const rhoCp = params.rhoCpAirWhM3k
+  const deltaTheta = thetaDesignC(room) - params.thetaEC
+
+  if (room.qVEnvMinM3h !== null) {
+    return roundHalfEven(
+      Math.max(0.0, room.qVEnvMinM3h * rhoCp * deltaTheta),
+      0,
+    )
+  }
+
+  const vMin = roundHalfEven(vIM3(room, storey) * effectiveNMinH1(room), 1)
+  const vInf = infiltrationFlowM3h(room, params, storey)
+
+  let phiV: number
+  if (params.withWrg && (params.wrgEta ?? 0) > 0) {
+    const vMech = Math.max(0, vMin - vInf)
+    phiV = rhoCp * deltaTheta * (vInf + vMech * (1 - (params.wrgEta ?? 0)))
+  } else {
+    phiV = rhoCp * Math.max(vMin, vInf) * deltaTheta
+  }
   return roundHalfEven(Math.max(0.0, phiV), 0)
 }
 
@@ -172,7 +197,7 @@ export function computeRoomHeatingLoad(
   storey?: Storey,
 ): RoomResult {
   const [compResults, phiT] = computeRoomTransmission(room, storey)
-  const phiV = computeRoomVentilationLoss(room, params, undefined, undefined, storey)
+  const phiV = computeRoomVentilationLoss(room, params, storey)
   const phiHl = phiT + phiV + (room.heatingUpAllowanceW ?? 0.0)
   return {
     room,
@@ -181,6 +206,7 @@ export function computeRoomHeatingLoad(
     phiVStandW: phiV,
     phiHlW: roundHalfEven(phiHl, 0),
     qVMinM3h: qVMinM3h(room, storey),
+    qVInfM3h: infiltrationFlowM3h(room, params, storey),
   }
 }
 

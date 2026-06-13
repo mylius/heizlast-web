@@ -19,6 +19,7 @@ export function exampleWizardState(): WizardState {
     buildingKind: "dhh",
     era: "altbau",
     windowsReplaced: true,
+    hasMvhr: false,
     plzOrCity: "",
     thetaEC: DEFAULT_THETA_E_C,
     thetaEManual: false,

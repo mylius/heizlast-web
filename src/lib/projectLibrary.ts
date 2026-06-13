@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import {
   parseProjectJson,
+  readParamsFromWire,
   serializeProjectJson,
   type ProjectWire,
 } from "@/engine/schema"
@@ -18,7 +19,8 @@ export interface StoredProject {
   key: string
   name: string
   savedAt: string
-  thetaEC: number
+  /** @deprecated nur für Alt-Einträge; aktuelle Parameter stehen in `wire` */
+  thetaEC?: number
   wire: ProjectWire
 }
 
@@ -52,8 +54,7 @@ export function saveToLibrary(
     key: crypto.randomUUID(),
     name: project.projectId || project.description || "Unbenanntes Projekt",
     savedAt: new Date().toISOString(),
-    thetaEC: params.thetaEC,
-    wire: serializeProjectJson(project, params.thetaEC),
+    wire: serializeProjectJson(project, params),
   }
   const list = [entry, ...listStoredProjects()]
   if (!persist(list)) return null
@@ -68,7 +69,11 @@ export function loadFromLibrary(key: string): boolean {
   try {
     const project = parseProjectJson(entry.wire)
     useProjectStore.getState().setProject(project)
-    useProjectStore.getState().setParams({ thetaEC: entry.thetaEC })
+    const params = readParamsFromWire(entry.wire)
+    if (params.thetaEC === undefined && entry.thetaEC !== undefined) {
+      params.thetaEC = entry.thetaEC // Alt-Einträge
+    }
+    useProjectStore.getState().setParams(params)
     toast.success(`„${entry.name}" geladen`)
     return true
   } catch {
