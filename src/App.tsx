@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ProfiPage } from "@/pages/profi/ProfiPage"
 import { ReportPage } from "@/pages/ReportPage"
+import { SanierungPage } from "@/pages/sanierung/SanierungPage"
 import { StartPage } from "@/pages/StartPage"
 import { WizardPage } from "@/pages/wizard/WizardPage"
 
@@ -43,6 +44,7 @@ function Shell() {
         <Route path="/" element={<StartPage />} />
         <Route path="/assistent" element={<WizardPage />} />
         <Route path="/profi" element={<ProfiPage />} />
+        <Route path="/sanierung" element={<SanierungPage />} />
         <Route path="/bericht" element={<ReportPage />} />
       </Routes>
     </div>

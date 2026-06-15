@@ -15,6 +15,7 @@ const NAV = [
   { to: "/", label: "Start" },
   { to: "/assistent", label: "Assistent" },
   { to: "/profi", label: "Profi-Modus" },
+  { to: "/sanierung", label: "Sanierung" },
   { to: "/bericht", label: "Bericht" },
 ]
 

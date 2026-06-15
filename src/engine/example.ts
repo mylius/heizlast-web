@@ -227,12 +227,14 @@ export function getExampleProject(): Project {
     }),
     makeComponent({
       orientation: "H",
+      // Decke gegen Außenluft: Dach sitzt direkt auf dem Raum (keine separate
+      // Geschossdecke), Aufbau wie die übrigen Flachdächer (50 mm PUR ≈ 0,415).
       componentType: "DE",
       bruttoM2: 6.31,
       adjacent: "e",
       thetaAdjacentC: thetaE,
       fIx: 1.0,
-      uValue: 0.97,
+      uValue: 0.415,
     }),
   ]
   rooms.push(og1R5)
@@ -360,7 +362,8 @@ export function getExampleProject(): Project {
       adjacent: "e",
       thetaAdjacentC: thetaE,
       fIx: 1.0,
-      uValue: 0.3,
+      // Decke gegen Außenluft (Flachdach 50 mm PUR ≈ 0,415), Dach direkt auf Raum
+      uValue: 0.415,
     }),
   ]
   rooms.push(egR5)
@@ -402,7 +405,8 @@ export function getExampleProject(): Project {
       adjacent: "e",
       thetaAdjacentC: thetaE,
       fIx: 1.0,
-      uValue: 0.3,
+      // Decke gegen Außenluft (Flachdach 50 mm PUR ≈ 0,415), Dach direkt auf Raum
+      uValue: 0.415,
     }),
   ]
   rooms.push(egR6)

@@ -20,6 +20,21 @@ export function deKw(watts: number, decimals = 1): string {
   })} kW`
 }
 
+/** Ganzzahliger Betrag in Euro, z.B. "12.500 €". */
+export function deEur(x: number): string {
+  return `${x.toLocaleString("de-DE", { maximumFractionDigits: 0 })} €`
+}
+
+/** Energiemenge in kWh/a, z.B. "18.400 kWh/a". */
+export function deKwhA(x: number): string {
+  return `${x.toLocaleString("de-DE", { maximumFractionDigits: 0 })} kWh/a`
+}
+
+/** CO₂-Masse in kg/a, z.B. "3.700 kg/a". */
+export function deKgA(x: number): string {
+  return `${x.toLocaleString("de-DE", { maximumFractionDigits: 0 })} kg/a`
+}
+
 /** Zahl aus deutschem Eingabeformat ("2,5" oder "2.5") parsen. */
 export function parseDeNumber(s: string): number | null {
   const trimmed = s.trim()

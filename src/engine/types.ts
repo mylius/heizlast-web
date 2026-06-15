@@ -157,6 +157,115 @@ export interface CalculationParams {
   wrgEta?: number
 }
 
+/**
+ * Energieträger der Wärmeerzeugung. Bestimmt Primärenergiefaktor,
+ * CO₂-Emissionsfaktor und einen typischen Anlagennutzungsgrad
+ * (bei Wärmepumpen die Jahresarbeitszahl > 1).
+ */
+export type EnergyCarrier =
+  | "gas"
+  | "oel"
+  | "fernwaerme"
+  | "waermepumpe"
+  | "pellets"
+  | "nachtspeicher"
+
+export const ENERGY_CARRIERS: EnergyCarrier[] = [
+  "gas",
+  "oel",
+  "fernwaerme",
+  "waermepumpe",
+  "pellets",
+  "nachtspeicher",
+]
+
+/**
+ * Parameter der orientierenden Jahresenergiebilanz (kein zertifizierter
+ * DIN-V-18599-Nachweis). Transparentes Gradtagzahl-Verfahren.
+ */
+export interface EnergyParams {
+  /** Gradtagzahl G_t [Kd/a] (Standort-/Klimakennwert). */
+  gradtagzahlKd: number
+  /** Beheizte Wohnfläche A_N [m²]; null ⇒ aus Räumen abgeleitet. */
+  aHeatedM2Override: number | null
+  /** Trinkwarmwasser-Nutzenergiebedarf [kWh/(m²·a)]. */
+  dhwKwhM2a: number
+  /** Anrechenbare interne + solare Gewinne [kWh/(m²·a)]. */
+  gainsKwhM2a: number
+  /** Ausnutzungsgrad der Gewinne η (0…1). */
+  gainUtilisation: number
+  /** Energieträger der Wärmeerzeugung. */
+  carrier: EnergyCarrier
+  /**
+   * Anlagennutzungsgrad e_ges (Erzeugung × Verteilung × Übergabe);
+   * bei Wärmepumpen die Jahresarbeitszahl (> 1).
+   */
+  systemEfficiency: number
+  /** Energiepreis [ct/kWh Endenergie] für die Kostenabschätzung. */
+  energyPriceCtKwh: number
+}
+
+export function defaultEnergyParams(): EnergyParams {
+  return {
+    gradtagzahlKd: 3500,
+    aHeatedM2Override: null,
+    dhwKwhM2a: 12.5,
+    gainsKwhM2a: 30,
+    gainUtilisation: 0.95,
+    carrier: "gas",
+    systemEfficiency: 0.9,
+    energyPriceCtKwh: 12,
+  }
+}
+
+/** Eine im Fahrplan ausgewählte Sanierungsmaßnahme. */
+export interface RenovationMeasureSelection {
+  /** Eindeutige Auswahl-ID (mehrfache Auswahl desselben Presets erlaubt). */
+  id: string
+  /** Referenz auf das MeasurePreset (siehe engine/measures.ts). */
+  presetId: string
+  /** Editierbarer Ziel-U-Wert [W/(m²K)]. */
+  targetUValue: number
+  /** Umsetzungsjahr (Phase im Fahrplan). */
+  year: number
+  enabled: boolean
+}
+
+export interface RenovationScenario {
+  measures: RenovationMeasureSelection[]
+}
+
+export function defaultRenovation(): RenovationScenario {
+  return { measures: [] }
+}
+
+/** Sanierungsziel, das die Priorisierung der Maßnahmen steuert. */
+export type SanierungsZiel = "kosten" | "co2" | "komfort"
+/** Umsetzungstempo: alles auf einmal oder über mehrere Jahre verteilt. */
+export type SanierungsTempo = "einmal" | "schrittweise"
+
+/** Antworten des Fragebogens für den automatischen Fahrplan-Vorschlag. */
+export interface RecommendationInput {
+  ziel: SanierungsZiel
+  tempo: SanierungsTempo
+  /** Zeithorizont in Jahren (nur bei "schrittweise"). */
+  horizonYears: number
+  /** Heizungstausch auf Wärmepumpe geplant ⇒ Hülle zuerst. */
+  waermepumpeGeplant: boolean
+  /** Ausgeschlossene Maßnahmen (bereits erledigt oder nicht möglich). */
+  excludedPresetIds: string[]
+}
+
+export function defaultRecommendationInput(): RecommendationInput {
+  return {
+    ziel: "kosten",
+    tempo: "schrittweise",
+    horizonYears: 10,
+    waermepumpeGeplant: false,
+    excludedPresetIds: [],
+  }
+}
+
 export const DEFAULT_THETA_E_C = -10.3
 
 export function defaultParams(): CalculationParams {

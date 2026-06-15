@@ -8,15 +8,32 @@ import { persist } from "zustand/middleware"
 import { temporal } from "zundo"
 
 import { getExampleProject } from "@/engine/example"
+import {
+  DEFAULT_ENERGY_PRICE_CT_KWH,
+  DEFAULT_SYSTEM_EFFICIENCY,
+} from "@/engine/energy"
+import { measurePresetById } from "@/engine/measures"
+import { optimizeMeasureYears, recommendMeasures } from "@/engine/recommend"
 import type {
   BuildingComponent,
   CalculationParams,
+  EnergyParams,
   Project,
+  RecommendationInput,
+  RenovationMeasureSelection,
+  RenovationScenario,
   Room,
   Storey,
   UsageUnit,
 } from "@/engine/types"
-import { defaultParams, makeRoom, makeStorey } from "@/engine/types"
+import {
+  defaultEnergyParams,
+  defaultParams,
+  defaultRecommendationInput,
+  defaultRenovation,
+  makeRoom,
+  makeStorey,
+} from "@/engine/types"
 import type { WizardState } from "@/pages/wizard/types"
 import { exampleWizardState } from "@/pages/wizard/example"
 import { initialWizardState } from "@/pages/wizard/types"
@@ -29,6 +46,9 @@ export interface RoomPath {
 interface AppState {
   project: Project
   params: CalculationParams
+  energyParams: EnergyParams
+  renovation: RenovationScenario
+  recommendationInput: RecommendationInput
   wizard: WizardState
   /** true, sobald ein Projekt geladen/bearbeitet wurde (für "Fortsetzen") */
   hasSession: boolean
@@ -37,6 +57,15 @@ interface AppState {
   resetToDemo: () => void
   newEmptyProject: () => void
   setParams: (patch: Partial<CalculationParams>) => void
+  setEnergyParams: (patch: Partial<EnergyParams>) => void
+  addMeasure: (presetId: string) => void
+  updateMeasure: (id: string, patch: Partial<RenovationMeasureSelection>) => void
+  removeMeasure: (id: string) => void
+  setRecommendationInput: (patch: Partial<RecommendationInput>) => void
+  /** Erzeugt aus den Fragebogen-Antworten einen Maßnahmenvorschlag. */
+  applyRecommendation: () => void
+  /** Ordnet die Umsetzungsjahre für schnellste Amortisation neu an. */
+  optimizeSchedule: () => void
   updateProjectMeta: (
     patch: Partial<Pick<Project, "projectId" | "description" | "address">>,
   ) => void
@@ -117,6 +146,9 @@ const roomAt = (state: { project: Project }, path: RoomPath): Room =>
 export interface UndoableState {
   project: Project
   params: CalculationParams
+  energyParams: EnergyParams
+  renovation: RenovationScenario
+  recommendationInput: RecommendationInput
 }
 
 export const useProjectStore = create<AppState>()(
@@ -125,6 +157,9 @@ export const useProjectStore = create<AppState>()(
       immer((set) => ({
       project: getExampleProject(),
       params: defaultParams(),
+      energyParams: defaultEnergyParams(),
+      renovation: defaultRenovation(),
+      recommendationInput: defaultRecommendationInput(),
       wizard: initialWizardState(),
       hasSession: false,
 
@@ -137,6 +172,9 @@ export const useProjectStore = create<AppState>()(
         set((s) => {
           s.project = getExampleProject()
           s.params = defaultParams()
+          s.energyParams = defaultEnergyParams()
+          s.renovation = defaultRenovation()
+          s.recommendationInput = defaultRecommendationInput()
           s.wizard = exampleWizardState()
           s.hasSession = true
         }),
@@ -144,12 +182,93 @@ export const useProjectStore = create<AppState>()(
         set((s) => {
           s.project = emptyProject()
           s.params = defaultParams()
+          s.energyParams = defaultEnergyParams()
+          s.renovation = defaultRenovation()
+          s.recommendationInput = defaultRecommendationInput()
           s.wizard = initialWizardState()
           s.hasSession = true
         }),
       setParams: (patch) =>
         set((s) => {
           Object.assign(s.params, patch)
+          s.hasSession = true
+        }),
+      setEnergyParams: (patch) =>
+        set((s) => {
+          // Energieträgerwechsel: passenden Default-Wirkungsgrad und -preis
+          // vorschlagen, sofern der Nutzer sie nicht selbst überschrieben hat.
+          if (patch.carrier !== undefined) {
+            const cur = s.energyParams
+            if (
+              patch.systemEfficiency === undefined &&
+              cur.systemEfficiency === DEFAULT_SYSTEM_EFFICIENCY[cur.carrier]
+            ) {
+              cur.systemEfficiency = DEFAULT_SYSTEM_EFFICIENCY[patch.carrier]
+            }
+            if (
+              patch.energyPriceCtKwh === undefined &&
+              cur.energyPriceCtKwh === DEFAULT_ENERGY_PRICE_CT_KWH[cur.carrier]
+            ) {
+              cur.energyPriceCtKwh = DEFAULT_ENERGY_PRICE_CT_KWH[patch.carrier]
+            }
+          }
+          Object.assign(s.energyParams, patch)
+          s.hasSession = true
+        }),
+      addMeasure: (presetId) =>
+        set((s) => {
+          const preset = measurePresetById(presetId)
+          if (!preset) return
+          const nextYear =
+            s.renovation.measures.reduce((max, m) => Math.max(max, m.year), 0) +
+            1
+          s.renovation.measures.push({
+            id:
+              globalThis.crypto?.randomUUID?.() ??
+              `m-${Date.now()}-${s.renovation.measures.length}`,
+            presetId,
+            targetUValue: preset.kind === "envelope" ? preset.targetUValue : 0,
+            year: nextYear,
+            enabled: true,
+          })
+          s.hasSession = true
+        }),
+      updateMeasure: (id, patch) =>
+        set((s) => {
+          const m = s.renovation.measures.find((m) => m.id === id)
+          if (m) Object.assign(m, patch)
+          s.hasSession = true
+        }),
+      removeMeasure: (id) =>
+        set((s) => {
+          s.renovation.measures = s.renovation.measures.filter(
+            (m) => m.id !== id,
+          )
+          s.hasSession = true
+        }),
+      setRecommendationInput: (patch) =>
+        set((s) => {
+          Object.assign(s.recommendationInput, patch)
+          s.hasSession = true
+        }),
+      applyRecommendation: () =>
+        set((s) => {
+          s.renovation.measures = recommendMeasures(
+            s.project,
+            s.params,
+            s.energyParams,
+            s.recommendationInput,
+          )
+          s.hasSession = true
+        }),
+      optimizeSchedule: () =>
+        set((s) => {
+          s.renovation.measures = optimizeMeasureYears(
+            s.project,
+            s.params,
+            s.energyParams,
+            s.renovation.measures,
+          )
           s.hasSession = true
         }),
       updateProjectMeta: (patch) =>
@@ -294,6 +413,9 @@ export const useProjectStore = create<AppState>()(
         partialize: (s): UndoableState => ({
           project: s.project,
           params: s.params,
+          energyParams: s.energyParams,
+          renovation: s.renovation,
+          recommendationInput: s.recommendationInput,
         }),
         limit: 50,
         equality: (a, b) => JSON.stringify(a) === JSON.stringify(b),
@@ -312,7 +434,21 @@ export const useProjectStore = create<AppState>()(
     ),
     {
       name: "heizlast-web:v1",
-      version: 1,
+      version: 3,
+      // Ältere Stände erhalten die seither ergänzten Felder mit Defaults.
+      // v2: Energie-Parameter + Sanierungsszenario; v3: Fragebogen-Antworten.
+      migrate: (persisted, version) => {
+        const s = (persisted ?? {}) as Partial<AppState>
+        if (version < 2) {
+          if (!s.energyParams) s.energyParams = defaultEnergyParams()
+          if (!s.renovation) s.renovation = defaultRenovation()
+        }
+        if (version < 3) {
+          if (!s.recommendationInput)
+            s.recommendationInput = defaultRecommendationInput()
+        }
+        return s as AppState
+      },
     },
   ),
 )
